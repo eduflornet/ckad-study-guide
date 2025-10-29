@@ -235,6 +235,8 @@ kubectl port-forward <pod> 8080:80
 - [Official CKAD Curriculum](https://github.com/cncf/curriculum)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [kubectl Cheat Sheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/)
+- [Github CKAD | TechLynk Selenium](https://github.com/anshulc55/CKAD.git)
+
 
 ## 🎯 Success Metrics
 
