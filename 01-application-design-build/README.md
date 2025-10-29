@@ -57,12 +57,16 @@ kubectl get jobs
 kubectl describe job hello
 kubectl logs job/hello
 ```
+## 🎯 Mock Exams
+- [Mock 1: Container images](mocks/mock01-container-images.md)
+- [Mock 2: Workload resources](mocks/mock02-workload-resources.md)
+- [Mock 3: Multi container patterns](mocks/mock03-multi-container-patterns.md)
 
 ## 🎯 Mock Scenarios
-
 - [Mock 1: Containerize a Node.js application](mocks/mock01-nodejs-containerization.md)
 - [Mock 2: Create a data processing job](mocks/mock02-data-processing-job.md)
 - [Mock 3: Implement logging sidecar](mocks/mock03-logging-sidecar.md)
+
 
 ## 🔑 Key Concepts to Master
 
