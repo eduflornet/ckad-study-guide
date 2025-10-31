@@ -27,7 +27,7 @@ A comprehensive study guide focused on passing the **Certified Kubernetes Applic
 
 Based on the official CNCF CKAD Curriculum v1.34, the exam covers these domains:
 
-### [Application Design and Build (20%)](/01-application-design-build/)
+### [Application Design and Build (20%)](/01-application-design-build/README.md)
 - **Define, build and modify container images**
   - Understand and use FROM, RUN, CMD, and ENTRYPOINT
   - Understand and use COPY and ADD
@@ -44,7 +44,7 @@ Based on the official CNCF CKAD Curriculum v1.34, the exam covers these domains:
   - Shared volumes between containers
   - Init containers
 
-### [Application Deployment (20%)](/02-application-deployment/)
+### [Application Deployment (20%)](/02-application-deployment/README.md)
 - **Use Kubernetes primitives to implement common deployment strategies**
   - Blue/green deployments
   - Rolling updates and rollbacks
@@ -60,7 +60,7 @@ Based on the official CNCF CKAD Curriculum v1.34, the exam covers these domains:
   - Understand chart structure
   - Use values and templates
 
-### [Application Observability and Maintenance (15%)](/03-observability-maintenance/)
+### [Application Observability and Maintenance (15%)](/03-observability-maintenance/README.md)
 - **Understand API deprecations**
   - Know how to migrate APIs
   - Use kubectl convert
@@ -81,7 +81,7 @@ Based on the official CNCF CKAD Curriculum v1.34, the exam covers these domains:
   - Understand logging architecture
   - Debug based on logs
 
-### [Application Environment, Configuration and Security (25%)](/04-environment-config-security/)
+### [Application Environment, Configuration and Security (25%)](/04-environment-config-security/README.md)
 - **Discover and use resources that extend Kubernetes (CRD)**
   - Understand Custom Resource Definitions
   - Work with custom resources
@@ -112,7 +112,7 @@ Based on the official CNCF CKAD Curriculum v1.34, the exam covers these domains:
   - runAsUser, runAsGroup, fsGroup
   - Security capabilities and privileges
 
-### [Services and Networking (20%)](/05-services-networking/)
+### [Services and Networking (20%)](/05-services-networking/README.md)
 - **Demonstrate basic understanding of NetworkPolicies**
   - Create ingress and egress rules
   - Understand pod-to-pod communication
