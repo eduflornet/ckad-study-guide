@@ -1,0 +1,22 @@
+# Use recent base image
+FROM python:3.11-alpine
+
+# Install latest packages
+RUN apk add --no-cache \
+    curl \
+    openssl
+
+# Create non-root user
+RUN adduser -D appuser
+
+WORKDIR /app
+
+# Install latest Python packages
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY --chown=appuser:appuser app.py .
+
+USER appuser
+
+CMD ["python", "app.py"]
