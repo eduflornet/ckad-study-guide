@@ -302,8 +302,29 @@ docker inspect <image>
 # View image history
 docker history <image>
 
-# Check for vulnerabilities (if you have docker scan)
-docker scan <image>
+# Check for vulnerabilities (you need to install trivy)
+# docker scan is deprecated
+
+```bash
+which trivy || echo "Trivy not installed"
+
+# install trivy
+curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+aquasecurity/trivy info checking GitHub for latest tag
+aquasecurity/trivy info found version: 0.67.2 for v0.67.2/Linux/64bit
+
+# install: no se puede crear el fichero regular '/usr/local/bin/trivy': Permiso denegado
+
+mkdir -p $HOME/.local/bin && curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b $HOME/.local/bin
+aquasecurity/trivy info checking GitHub for latest tag
+aquasecurity/trivy info found version: 0.67.2 for v0.67.2/Linux/64bit
+aquasecurity/trivy info installed /home/eduardo/.local/bin/trivy
+
+$HOME/.local/bin/trivy --version
+Version: 0.67.2
+
+# Test images with trivy
+trivy image <image-docker>
 
 # Test container security
 docker run --rm -it <image> whoami

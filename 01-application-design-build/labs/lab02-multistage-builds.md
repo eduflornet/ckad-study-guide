@@ -65,7 +65,7 @@ FROM golang:1.21
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 
 COPY . .
@@ -90,7 +90,7 @@ RUN apk add --no-cache git
 WORKDIR /app
 
 # Copy go mod files
-COPY go.mod go.sum ./
+COPY go.mod ./
 RUN go mod download
 
 # Copy source code
@@ -258,31 +258,41 @@ export default App;
 Create `Dockerfile`:
 ```dockerfile
 # Build stage
+# Use Node.js 18 Alpine image for building the React application
 FROM node:18-alpine AS builder
 
+
 # Set build-time environment variable
+# This can be used to embed build time information into the app
 ARG BUILD_TIME
 ENV REACT_APP_BUILD_TIME=$BUILD_TIME
 
+# Set working directory
 WORKDIR /app
 
 # Copy package files
+# Could use package-lock.json if available
 COPY package*.json ./
 
-# Install dependencies
+
+# Install production dependencies only, cleanly and reproducibly using npm ci.
 RUN npm ci --only=production
 
 # Copy source code
+# Copy only necessary files to reduce image size
 COPY public/ ./public/
 COPY src/ ./src/
 
 # Build the application
+# This will create a production build in the /app/build directory
 RUN npm run build
 
 # Production stage
+# Use nginx Alpine image for serving the built application
 FROM nginx:alpine
 
 # Copy custom nginx config
+# Override default nginx configuration to serve React app and handle client-side routing
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
     listen 80;
@@ -301,22 +311,28 @@ server {
 EOF
 
 # Copy built application from builder stage
+# Copy the production build files to nginx html directory
 COPY --from=builder /app/build /usr/share/nginx/html
 
 # Add non-root user for nginx
+# Create nginx user and group with specific UID and GID
 RUN addgroup -g 1001 -S nginx-group && \
     adduser -S nginx-user -u 1001 -G nginx-group
 
 # Change ownership of nginx directories
+# Ensure nginx can write to necessary directories
 RUN chown -R nginx-user:nginx-group /var/cache/nginx && \
     chown -R nginx-user:nginx-group /var/log/nginx && \
     chown -R nginx-user:nginx-group /etc/nginx/conf.d
 
 # Switch to non-root user
+# Run nginx as non-root user for better security
 USER nginx-user
 
+# Expose port 80
 EXPOSE 80
 
+# Start Nginx in foreground mode (necessary to prevent the container from stopping).
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
