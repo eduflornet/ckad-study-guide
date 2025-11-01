@@ -1,0 +1,20 @@
+FROM python:3.11-alpine
+
+# Install dependencies in single layer
+RUN apk add --no-cache curl
+
+# Set working directory
+WORKDIR /app
+
+# Copy and install requirements first
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY app.py .
+
+# Use non-root user
+RUN adduser -D appuser
+USER appuser
+
+CMD ["python", "app.py"]
