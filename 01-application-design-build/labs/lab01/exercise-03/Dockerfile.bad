@@ -1,0 +1,16 @@
+FROM ubuntu:22.04
+
+# Install everything in one go
+RUN apt-get update
+RUN apt-get install -y python3
+RUN apt-get install -y python3-pip
+RUN apt-get install -y curl
+RUN apt-get install -y vim
+
+COPY . /app
+WORKDIR /app
+
+RUN pip3 install flask
+RUN pip3 install requests
+
+CMD ["python3", "app.py"]

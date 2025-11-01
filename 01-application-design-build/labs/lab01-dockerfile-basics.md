@@ -272,6 +272,7 @@ docker build -f Dockerfile.good -t app-good .
 
 # Compare sizes
 docker images | grep app-
+
 ```
 
 ---
