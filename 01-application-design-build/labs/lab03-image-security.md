@@ -174,13 +174,13 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy --ver
 Create `Dockerfile.vulnerable`:
 ```dockerfile
 # Use old base image with known vulnerabilities
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 # Install packages with known vulnerabilities
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
-    openssl=1.1.1-1ubuntu2.1~18.04.5 \
+    openssl \
     curl
 
 # Install old Python packages
@@ -192,6 +192,7 @@ COPY app.py /app/app.py
 WORKDIR /app
 
 CMD ["python3", "app.py"]
+
 ```
 
 Create `Dockerfile.patched`:

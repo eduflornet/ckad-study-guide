@@ -1,0 +1,19 @@
+# Use old base image with known vulnerabilities
+FROM ubuntu:22.04
+
+# Install packages with known vulnerabilities
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    openssl \
+    curl
+
+# Install old Python packages
+RUN pip3 install \
+    Flask==1.0.0 \
+    requests==2.20.0
+
+COPY app.py /app/app.py
+WORKDIR /app
+
+CMD ["python3", "app.py"]

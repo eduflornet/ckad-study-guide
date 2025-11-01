@@ -22,20 +22,20 @@
 
 ## 🛠️ Practice Labs
 
-### Lab 1: Container Images
-- [Basic Dockerfile creation](labs/lab01-dockerfile-basics.md)
-- [Multi-stage build optimization](labs/lab02-multistage-builds.md)
-- [Security scanning and hardening](labs/lab03-image-security.md)
+### Labs: Container Images
+- [01. Basic Dockerfile creation](labs/lab01-dockerfile-basics.md)
+- [02. Multi-stage build optimization](labs/lab02-multistage-builds.md)
+- [03. Security scanning and hardening](labs/lab03-image-security.md)
 
-### Lab 2: Jobs and CronJobs
-- [Simple batch job](labs/lab04-simple-job.md)
-- [Parallel processing jobs](labs/lab05-parallel-jobs.md)
-- [Scheduled maintenance tasks](labs/lab06-cronjobs.md)
+### Lab: Jobs and CronJobs
+- [04. Simple batch job](labs/lab04-simple-job.md)
+- [05. Parallel processing jobs](labs/lab05-parallel-jobs.md)
+- [06. Scheduled maintenance tasks](labs/lab06-cronjobs.md)
 
-### Lab 3: Multi-Container Pods
-- [Sidecar logging container](labs/lab07-sidecar-logging.md)
-- [Init container setup](labs/lab08-init-containers.md)
-- [Shared volume communication](labs/lab09-shared-volumes.md)
+### Labs: Multi-Container Pods
+- [07. Sidecar logging container](labs/lab07-sidecar-logging.md)
+- [08. Init container setup](labs/lab08-init-containers.md)
+- [09. Shared volume communication](labs/lab09-shared-volumes.md)
 
 ## ⚡ Quick Drills
 
