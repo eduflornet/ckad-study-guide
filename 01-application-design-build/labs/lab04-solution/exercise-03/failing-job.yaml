@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: unreliable-job
+spec:
+  completions: 1
+  backoffLimit: 3
+  template:
+    spec:
+      containers:
+      - name: unreliable-worker
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Starting unreliable task..."
+          
+          # 70% chance of failure
+          if [ $((RANDOM % 10)) -lt 7 ]; then
+            echo "Task failed! Something went wrong."
+            exit 1
+          else
+            echo "Task completed successfully!"
+            exit 0
+          fi
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "25m"
+      restartPolicy: Never

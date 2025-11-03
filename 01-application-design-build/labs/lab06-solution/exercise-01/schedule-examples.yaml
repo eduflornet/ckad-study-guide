@@ -1,0 +1,50 @@
+# Daily backup at 2 AM
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: daily-backup
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: busybox:1.35
+            command: ["sh", "-c", "echo 'Running daily backup at $(date)'"]
+          restartPolicy: OnFailure
+---
+# Weekly report on Sundays at 9 AM
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: weekly-report
+spec:
+  schedule: "0 9 * * 0"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: reporter
+            image: busybox:1.35
+            command: ["sh", "-c", "echo 'Generating weekly report at $(date)'"]
+          restartPolicy: OnFailure
+---
+# Every 15 minutes during business hours (9 AM - 5 PM, Mon-Fri)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: health-check
+spec:
+  schedule: "*/15 9-17 * * 1-5"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: health-checker
+            image: busybox:1.35
+            command: ["sh", "-c", "echo 'Health check at $(date)'"]
+          restartPolicy: OnFailure

@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: simple-calculation
+  labels:
+    app: calculator
+spec:
+  # Job will complete when 1 pod succeeds
+  completions: 1
+  # Only 1 pod runs at a time
+  parallelism: 1
+  # Retry up to 3 times on failure
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: calculator
+    spec:
+      containers:
+      - name: calculator
+        image: python:3.11-alpine
+        command:
+        - python
+        - -c
+        - |
+          import math
+          import time
+          
+          print("Starting calculation...")
+          time.sleep(2)
+          
+          # Calculate factorial of 10
+          result = math.factorial(10)
+          print(f"Factorial of 10 is: {result}")
+          
+          # Calculate some more complex operations
+          pi_approx = sum(1/16**k * (4/(8*k+1) - 2/(8*k+4) - 1/(8*k+5) - 1/(8*k+6)) for k in range(100))
+          print(f"Pi approximation: {pi_approx}")
+          
+          print("Calculation complete!")
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+      restartPolicy: Never

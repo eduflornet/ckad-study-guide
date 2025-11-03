@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: failure-policy-job
+spec:
+  completions: 3
+  parallelism: 2
+  backoffLimit: 6
+  podFailurePolicy:  # Available in Kubernetes 1.25+
+    rules:
+    - action: FailJob
+      onExitCodes:
+        containerName: worker
+        operator: In
+        values: [42]  # Fail entire job on exit code 42
+    - action: Ignore
+      onExitCodes:
+        containerName: worker
+        operator: In
+        values: [1]   # Ignore exit code 1 (don't count as failure)
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          RANDOM_EXIT=$((RANDOM % 4))
+          echo "Worker will exit with code: $RANDOM_EXIT"
+          
+          case $RANDOM_EXIT in
+            0) echo "Success!"; exit 0 ;;
+            1) echo "Temporary failure (ignored)"; exit 1 ;;
+            2) echo "Retry-able failure"; exit 2 ;;
+            3) echo "Critical failure!"; exit 42 ;;
+          esac
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "25m"
+      restartPolicy: Never

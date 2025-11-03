@@ -1,0 +1,9 @@
+Image: nginx:1.24-alpine
+Working Directory: /var/cache/nginx
+Exposed Ports: 80 443
+Entrypoint: ["nginx", "-g", "daemon off;"]
+Environment Variables: 
+  - NGINX_VERSION=1.24.0
+  - PKG_RELEASE=1
+Layers: 7
+Size: ~15.3 MB

@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: timeout-job
+spec:
+  # Job must complete within 30 seconds
+  activeDeadlineSeconds: 30
+  completions: 1
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: slow-worker
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Starting long-running task..."
+          # This will take 60 seconds, longer than the deadline
+          sleep 60
+          echo "Task completed!"
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "25m"
+      restartPolicy: Never

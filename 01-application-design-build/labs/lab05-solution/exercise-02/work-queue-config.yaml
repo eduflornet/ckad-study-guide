@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: work-queue
+data:
+  tasks.txt: |
+    process-file-1.txt
+    process-file-2.txt
+    process-file-3.txt
+    analyze-data-set-A
+    analyze-data-set-B
+    analyze-data-set-C
+    generate-report-Q1
+    generate-report-Q2
+    generate-report-Q3
+    backup-database-users
+    backup-database-orders
+    backup-database-products
+    send-email-campaign-1
+    send-email-campaign-2
+    cleanup-temp-files
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: work-processor
+data:
+  processor.py: |
+    import time
+    import random
+    import os
+    import fcntl
+    
+    def get_next_task():
+        """Get next task from the queue file"""
+        try:
+            with open('/shared/queue/tasks.txt', 'r+') as f:
+                # Lock the file to prevent race conditions
+                fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                
+                lines = f.readlines()
+                if not lines:
+                    return None
+                
+                # Take the first task
+                task = lines[0].strip()
+                
+                # Write remaining tasks back
+                f.seek(0)
+                f.writelines(lines[1:])
+                f.truncate()
+                
+                return task
+        except Exception as e:
+            print(f"Error reading queue: {e}")
+            return None
+    
+    def process_task(task):
+        """Simulate task processing"""
+        print(f"Processing task: {task}")
+        
+        # Simulate different processing times
+        if 'database' in task:
+            time.sleep(random.uniform(8, 12))  # Database tasks take longer
+        elif 'report' in task:
+            time.sleep(random.uniform(5, 8))   # Reports take medium time
+        else:
+            time.sleep(random.uniform(2, 5))   # Other tasks are quick
+        
+        print(f"Completed task: {task}")
+    
+    def main():
+        worker_id = os.getenv('HOSTNAME', 'unknown')
+        print(f"Worker {worker_id} started")
+        
+        tasks_processed = 0
+        
+        while True:
+            task = get_next_task()
+            if task is None:
+                print(f"Worker {worker_id} found no more tasks")
+                break
+            
+            process_task(task)
+            tasks_processed += 1
+        
+        print(f"Worker {worker_id} processed {tasks_processed} tasks and is exiting")
+    
+    if __name__ == "__main__":
+        main()

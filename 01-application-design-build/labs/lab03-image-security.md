@@ -192,7 +192,7 @@ COPY app.py /app/app.py
 WORKDIR /app
 
 CMD ["python3", "app.py"]
-
+cd exe
 ```
 
 Create `Dockerfile.patched`:
@@ -416,22 +416,80 @@ jobs:
 
 ### Step 3: Runtime Security
 
-Create secure runtime configuration:
-```bash
-# Run with security constraints
+```sh
+# Ran terminal command: 
+
+docker build -f Dockerfile.distroless -t distroless-app .
+
+#Ran terminal command: 
+
 docker run -d \
     --name secure-app \
-    --user 1001:1001 \
+    --user 65532:65532 \
     --read-only \
     --tmpfs /tmp \
     --cap-drop ALL \
     --cap-add NET_BIND_SERVICE \
-    --no-new-privileges \
     --security-opt=no-new-privileges:true \
-    app:secure
+    -p 8080:8080 \
+    distroless-app
 
 # Check security status
 docker inspect secure-app | grep -A 20 "SecurityOpt"
+
+#¡Excelent! Now let's verify that the container it's running: 
+
+#Ran terminal command: 
+sleep 2 && curl -s http://localhost:8080
+
+# Ran terminal command: 
+curl -s http://localhost:8080/health
+
+# Now we check the container's security settings:
+
+# Ran terminal command: 
+
+docker inspect secure-app | jq '.[] | {SecurityOpt, User, ReadonlyRootfs}' 2>/dev/null || docker inspect secure-app | grep -A 20 "SecurityOpt"
+
+# Let me get the security information in a different way: 
+
+# Ran terminal command: 
+docker inspect secure-app --format='{{json .HostConfig}}' | jq '{SecurityOpt, ReadonlyRootfs, UsernsMode, CapDrop, CapAdd}'
+
+# Perfect! Let's compare the image sizes:: 
+
+# Ran terminal command: 
+echo "=== DISTROLESS IMAGE COMPARISON ===" && docker images | grep -E "(distroless-app|golang.*alpine)"
+
+#Now we're going to scan the Distroless image to verify its security:
+
+#Ran terminal command: 
+$HOME/.local/bin/trivy image distroless-app --severity HIGH,CRITICAL --quiet
+
+#Finally, let's clean the container:
+
+#Ran terminal command: 
+docker stop secure-app && docker rm secure-app
+
+### **Configuraciones de Seguridad Aplicadas:**
+
+| Configuración | Descripción | Beneficio |
+|---------------|-------------|-----------|
+| `--user 65532:65532` | Usuario no-root predefinido | Previene escalación de privilegios |
+| `--read-only` | Sistema de archivos de solo lectura | Previene modificaciones maliciosas |
+| `--tmpfs /tmp` | Directorio temporal en memoria | Aislamiento de archivos temporales |
+| `--cap-drop ALL` | Elimina todas las capacidades | Principio de menor privilegio |
+| `--cap-add NET_BIND_SERVICE` | Solo permite bind a puertos | Mínimas capacidades necesarias |
+| `--security-opt=no-new-privileges:true` | Previene escalación | Seguridad adicional |
+
+### **Resultados de Seguridad:**
+
+- **✅ Imagen Distroless**: Solo 8.82MB (vs >500MB de imágenes Ubuntu)
+- **✅ Usuario no-root**: `nonroot (UID: 65532)`
+- **✅ Sin vulnerabilidades del OS**: 0 vulnerabilidades críticas del sistema base
+- **✅ Superficie de ataque mínima**: Solo el binario de la aplicación
+- **✅ Configuración hardened**: Todas las medidas de seguridad aplicadas
+
 ```
 
 ---
