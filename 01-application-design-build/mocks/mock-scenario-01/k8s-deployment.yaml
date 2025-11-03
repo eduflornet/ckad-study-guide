@@ -1,0 +1,124 @@
+apiVersion: v1
+# Stores non-sensitive environment variables.
+kind: ConfigMap
+metadata:
+  name: task-manager-config
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  PORT: "3000"
+  CORS_ORIGIN: "https://yourdomain.com"
+---
+apiVersion: v1
+# Stores sensitive information like database credentials and API keys.
+kind: Secret
+metadata:
+  name: task-manager-secrets
+type: Opaque
+stringData:
+  DATABASE_URL: "postgresql://taskuser:taskpass@postgres:5432/taskdb"
+  REDIS_URL: "redis://redis:6379"
+  SESSION_SECRET: "your-super-secret-session-key"
+---
+apiVersion: apps/v1
+# Kubernetes Deployment for the Task Manager application.
+kind: Deployment
+metadata:
+  name: task-manager
+  labels:
+    app: task-manager
+    version: v1.0.0
+spec:
+  replicas: 3
+  strategy:
+  # Rolling update strategy to ensure zero downtime during updates.
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: task-manager
+  template:
+    metadata:
+      labels:
+        app: task-manager
+        version: v1.0.0
+    spec:
+    # Security context to run the pod with non-root user.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+      - name: task-manager
+        image: task-manager:1.0.0
+        ports:
+        - containerPort: 3000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: task-manager-config
+        - secretRef:
+            name: task-manager-secrets
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+            # livenessProbe: verifies if the container is alive.
+        livenessProbe:
+          httpGet:
+            path: /api/health/live
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+          # readinessProbe: verifies if the container is ready to accept traffic.
+        readinessProbe:
+          httpGet:
+            path: /api/health/ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+          # Uploads and logs: temporary directories (emptyDir)
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+        - name: logs
+          mountPath: /app/logs
+        securityContext:
+        
+        # Does not allow privilege escalation
+          allowPrivilegeEscalation: false
+          # Does not allow writing to the root filesystem
+          readOnlyRootFilesystem: false
+          # Drops all Linux capabilities for enhanced security
+          capabilities:
+            drop:
+            - ALL
+      volumes:
+      - name: uploads
+        emptyDir: {}
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+# Kubernetes Service to expose the Task Manager application within the cluster.
+kind: Service
+metadata:
+  name: task-manager-service
+spec:
+  selector:
+    app: task-manager
+  ports:
+  - port: 80
+    targetPort: 3000
+    name: http
+  type: ClusterIP
