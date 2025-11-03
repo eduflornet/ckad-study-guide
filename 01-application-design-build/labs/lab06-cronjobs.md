@@ -1,5 +1,39 @@
 # Lab 6: CronJobs
 
+**What is a Cron format?**
+
+It's a text string that defines when a Cron Job should run. It has 5 required fields, each representing a unit of time:
+
+MINUTE HOUR DAY_OF_MONTH MONTH DAY_OF_WEEK
+
+Example: 0 5 * * 1
+
+→ Perform the work every Monday at 5:00 AM.
+
+**Meaning of each field**
+
+Field Valid         values ​​Meaning
+
+MINUTE 0–59         Minute of the hour
+HOUR 0–23           Hour of the day
+DAY_OF_MONTH 1–31   Day of the month
+MONTH 1–12          Month of the year
+DAY_OF_WEEK 0–7     (0 and 7 = Sunday) Day of the week
+
+🧠 Special characters
+* → any value
+, → list of values ​​(e.g., 1, 15)
+- → range (e.g., 1–5)
+/ → increments (e.g., */10 = every 10 units)
+
+📦 Useful Examples for CKAD
+
+0 * * * *       Every hour on the hour
+*/5 * * * *     Every 5 minutes
+0 0 * * *       Every day at midnight
+0 9-17 * * 1-5  Every hour between 9 and 17, Monday to Friday
+30 2 1 * *      At 2:30 AM on the 1st of each month
+
 **Objective**: Master scheduled jobs using Kubernetes CronJobs
 
 **Time**: 30 minutes

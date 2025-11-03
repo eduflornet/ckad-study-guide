@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: indexed-processor
+spec:
+  completions: 5
+  parallelism: 3
+  completionMode: Indexed  # Available in Kubernetes 1.21+
+  template:
+    spec:
+      containers:
+      - name: processor
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Processing with completion index: ${JOB_COMPLETION_INDEX}"
+          
+          # Different work based on index
+          case ${JOB_COMPLETION_INDEX} in
+            0) echo "Processing dataset A"; sleep 5 ;;
+            1) echo "Processing dataset B"; sleep 3 ;;
+            2) echo "Processing dataset C"; sleep 7 ;;
+            3) echo "Processing dataset D"; sleep 4 ;;
+            4) echo "Processing dataset E"; sleep 6 ;;
+            *) echo "Unknown index"; sleep 2 ;;
+          esac
+          
+          echo "Index ${JOB_COMPLETION_INDEX} completed"
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "25m"
+      restartPolicy: Never

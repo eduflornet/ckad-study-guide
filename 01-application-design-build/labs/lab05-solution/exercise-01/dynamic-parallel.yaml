@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: dynamic-processor
+spec:
+  completions: 10
+  parallelism: 2  # Start with 2 parallel pods
+  backoffLimit: 3
+  template:
+    spec:
+      containers:
+      - name: processor
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          WORKER_ID=$(cat /proc/sys/kernel/random/uuid | cut -d'-' -f1)
+          COMPLETION_INDEX=${JOB_COMPLETION_INDEX:-$RANDOM}
+          
+          echo "Worker $WORKER_ID (index: $COMPLETION_INDEX) starting..."
+          
+          # Simulate variable work based on index
+          if [ $((COMPLETION_INDEX % 3)) -eq 0 ]; then
+            WORK_TIME=10  # Some tasks take longer
+          else
+            WORK_TIME=5   # Others are quicker
+          fi
+          
+          echo "Worker $WORKER_ID processing for $WORK_TIME seconds..."
+          sleep $WORK_TIME
+          
+          echo "Worker $WORKER_ID (index: $COMPLETION_INDEX) completed!"
+        resources:
+          requests:
+            memory: "16Mi"
+            cpu: "25m"
+      restartPolicy: Never

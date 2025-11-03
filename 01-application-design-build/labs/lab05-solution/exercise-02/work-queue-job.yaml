@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: work-queue-job
+spec:
+  # No completions specified - work queue pattern
+  parallelism: 4
+  backoffLimit: 2
+  template:
+    spec:
+      volumes:
+      - name: work-queue
+        configMap:
+          name: work-queue
+      - name: work-processor
+        configMap:
+          name: work-processor
+          defaultMode: 0755
+      - name: shared-queue
+        emptyDir: {}
+      
+      initContainers:
+      - name: setup-queue
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Setting up work queue..."
+          cp /config/tasks.txt /shared/queue/
+          echo "Queue initialized with $(wc -l < /shared/queue/tasks.txt) tasks"
+        volumeMounts:
+        - name: work-queue
+          mountPath: /config
+        - name: shared-queue
+          mountPath: /shared/queue
+      
+      containers:
+      - name: worker
+        image: python:3.11-alpine
+        command:
+        - python
+        - /scripts/processor.py
+        volumeMounts:
+        - name: work-processor
+          mountPath: /scripts
+        - name: shared-queue
+          mountPath: /shared/queue
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+          limits:
+            memory: "64Mi"
+            cpu: "100m"
+      restartPolicy: Never

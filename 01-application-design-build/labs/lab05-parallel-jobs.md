@@ -168,6 +168,8 @@ kubectl delete -f dynamic-parallel.yaml
 
 Implement jobs that process from a shared work queue.
 
+It combines several key concepts: Job, initContainers, volumes, ConfigMap, and emptyDir.
+
 ### Step 1: Create Shared Work Queue
 
 Create `work-queue-config.yaml`:
@@ -288,7 +290,9 @@ spec:
           defaultMode: 0755
       - name: shared-queue
         emptyDir: {}
-      
+
+      # This container runs before the main container.It copies the tasks.txt file from the ConfigMap to the shared-queue volume.It simulates the initialization of a work queue.
+
       initContainers:
       - name: setup-queue
         image: busybox:1.35
@@ -305,6 +309,10 @@ spec:
         - name: shared-queue
           mountPath: /shared/queue
       
+      # Each pod runs a worker container that executes the processor.py script.The script accesses /shared/queue/tasks.txt to process tasks.Two volumes are mounted:
+      # /scripts: contains the script from the ConfigMap.
+      #/shared/queue: contains the shared task queue.
+
       containers:
       - name: worker
         image: python:3.11-alpine
@@ -351,6 +359,12 @@ kubectl get job work-queue-job
 kubectl delete -f work-queue-job.yaml
 kubectl delete -f work-queue-config.yaml
 ```
+🧠 What pattern does it implement?
+This manifest implements the Work Queue Pattern:
+
+- An initContainer prepares a work queue.
+- Several worker pods (4 in parallel) consume tasks from that queue.
+- Each pod executes a portion of the work and then terminates.
 
 ---
 
@@ -473,6 +487,8 @@ kubectl apply -f failure-policy-job.yaml
 
 # Monitor job behavior with different exit codes
 kubectl get job failure-policy-job -w
+
+kubectl get job failure-policy-job -o wide
 
 # Check events for policy actions
 kubectl describe job failure-policy-job

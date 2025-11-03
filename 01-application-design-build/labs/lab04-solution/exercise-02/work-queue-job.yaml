@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: work-queue-processor
+spec:
+  # Don't specify completions for work queue pattern
+  parallelism: 3
+  backoffLimit: 1
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: python:3.11-alpine
+        command:
+        - python
+        - -c
+        - |
+          import time
+          import random
+          import os
+          
+          worker_id = os.getenv('HOSTNAME', 'unknown')
+          print(f"Worker {worker_id} started")
+          
+          # Simulate work queue processing
+          tasks = ['task1', 'task2', 'task3', 'task4', 'task5']
+          
+          for task in tasks:
+              print(f"Worker {worker_id} processing {task}")
+              # Simulate variable work time
+              work_time = random.uniform(1, 3)
+              time.sleep(work_time)
+              print(f"Worker {worker_id} completed {task}")
+          
+          print(f"Worker {worker_id} finished all tasks")
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+      restartPolicy: Never

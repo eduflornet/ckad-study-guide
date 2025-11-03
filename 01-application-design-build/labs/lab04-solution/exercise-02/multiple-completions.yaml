@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-processor
+spec:
+  # Need 5 successful completions
+  completions: 5
+  # Run 2 pods in parallel
+  parallelism: 2
+  backoffLimit: 2
+  template:
+    spec:
+      containers:
+      - name: processor
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          # Simulate data processing
+          WORKER_ID=$(cat /proc/sys/kernel/random/uuid | cut -d'-' -f1)
+          echo "Worker $WORKER_ID starting..."
+          
+          # Simulate variable processing time
+          SLEEP_TIME=$((RANDOM % 10 + 5))
+          echo "Processing for $SLEEP_TIME seconds..."
+          sleep $SLEEP_TIME
+          
+          echo "Worker $WORKER_ID completed successfully!"
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "50m"
+      restartPolicy: Never
