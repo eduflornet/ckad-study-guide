@@ -1,0 +1,79 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: data-processor
+  labels:
+    app: data-processing
+    environment: production
+spec:
+  # Run every 5 minutes
+  schedule: "*/5 * * * *"
+  
+  # Keep last 3 successful jobs
+  successfulJobsHistoryLimit: 3
+  
+  # Keep last 1 failed job for debugging
+  failedJobsHistoryLimit: 1
+  
+  # Don't start new job if previous is still running
+  concurrencyPolicy: Forbid
+  
+  # Allow 10 seconds delay before considering job as failed to start
+  startingDeadlineSeconds: 10
+  
+  # Suspend the CronJob (useful for maintenance)
+  suspend: false
+  
+  jobTemplate:
+    metadata:
+      labels:
+        app: data-processing
+        job-type: scheduled
+    spec:
+      # Job should complete within 4 minutes
+      activeDeadlineSeconds: 240
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: data-processing
+        spec:
+          containers:
+          - name: processor
+            image: python:3.11-alpine
+            command:
+            - python
+            - -c
+            - |
+              import time
+              import random
+              import datetime
+              
+              print(f"Data processing started at {datetime.datetime.now()}")
+              
+              # Simulate data processing work
+              datasets = ['users', 'orders', 'products', 'analytics']
+              
+              for dataset in datasets:
+                  print(f"Processing {dataset} dataset...")
+                  
+                  # Simulate variable processing time
+                  process_time = random.uniform(10, 30)
+                  time.sleep(process_time)
+                  
+                  print(f"Completed {dataset} processing in {process_time:.2f}s")
+              
+              print(f"All data processing completed at {datetime.datetime.now()}")
+            resources:
+              requests:
+                memory: "64Mi"
+                cpu: "100m"
+              limits:
+                memory: "128Mi"
+                cpu: "200m"
+            env:
+            - name: BATCH_SIZE
+              value: "1000"
+            - name: PROCESSING_MODE
+              value: "incremental"
+          restartPolicy: OnFailure

@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+type: Opaque
+data:
+  username: YWRtaW4=  # admin (base64)
+  password: cGFzc3dvcmQ=  # password (base64)
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: database-backup
+spec:
+  # Daily at 2:30 AM
+  schedule: "30 2 * * *"
+  successfulJobsHistoryLimit: 7  # Keep one week of backups
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: postgres:15-alpine
+            command:
+            - sh
+            - -c
+            - |
+              # Simulate database backup
+              BACKUP_FILE="backup-$(date +%Y%m%d-%H%M%S).sql"
+              echo "Starting database backup: $BACKUP_FILE"
+              
+              # In real scenario, you would use:
+              # pg_dump -h $DB_HOST -U $DB_USER -d $DB_NAME > $BACKUP_FILE
+              
+              echo "SELECT 'Backup completed at $(date)' as status;" > /tmp/$BACKUP_FILE
+              echo "Backup file created: $BACKUP_FILE ($(wc -c < /tmp/$BACKUP_FILE) bytes)"
+              
+              # Upload to cloud storage (simulated)
+              echo "Uploading backup to cloud storage..."
+              sleep 5
+              echo "Backup uploaded successfully"
+            env:
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "100m"
+              limits:
+                memory: "256Mi"
+                cpu: "200m"
+          restartPolicy: OnFailure
