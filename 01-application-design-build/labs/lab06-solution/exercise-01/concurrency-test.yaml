@@ -1,0 +1,167 @@
+# Test Forbid policy
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: long-running-forbid
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: long-task
+            image: busybox:1.35
+            command:
+            - sh
+            - -c
+            - |
+              echo "Long task started at $(date)"
+              sleep 180  # Sleep for 3 minutes (longer than schedule interval)
+              echo "Long task completed at $(date)"
+            resources:
+              requests:
+                memory: "16Mi"
+                cpu: "25m"
+          restartPolicy: OnFailure
+---
+# Test Allow policy
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: long-running-allow
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  concurrencyPolicy: Allow
+  successfulJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: concurrent-task
+            image: busybox:1.35
+            command:
+            - sh
+            - -c
+            - |
+              echo "Concurrent task $HOSTNAME started at $(date)"
+              sleep 180  # Sleep for 3 minutes
+              echo "Concurrent task $HOSTNAME completed at $(date)"
+            resources:
+              requests:
+                memory: "16Mi"
+                cpu: "25m"
+          restartPolicy: OnFailure
+---
+# Test Replace policy
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: long-running-replace
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: replaceable-task
+            image: busybox:1.35
+            command:
+            - sh
+            - -c
+            - |
+              echo "Replaceable task $HOSTNAME started at $(date)"
+              sleep 180  # Sleep for 3 minutes
+              echo "Replaceable task $HOSTNAME completed at $(date)"
+            resources:
+              requests:
+                memory: "16Mi"
+                cpu: "25m"
+          restartPolicy: OnFailure# Test Forbid policy
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: long-running-forbid
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: long-task
+            image: busybox:1.35
+            command:
+            - sh
+            - -c
+            - |
+              echo "Long task started at $(date)"
+              sleep 180  # Sleep for 3 minutes (longer than schedule interval)
+              echo "Long task completed at $(date)"
+            resources:
+              requests:
+                memory: "16Mi"
+                cpu: "25m"
+          restartPolicy: OnFailure
+---
+# Test Allow policy
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: long-running-allow
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  concurrencyPolicy: Allow
+  successfulJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: concurrent-task
+            image: busybox:1.35
+            command:
+            - sh
+            - -c
+            - |
+              echo "Concurrent task $HOSTNAME started at $(date)"
+              sleep 180  # Sleep for 3 minutes
+              echo "Concurrent task $HOSTNAME completed at $(date)"
+            resources:
+              requests:
+                memory: "16Mi"
+                cpu: "25m"
+          restartPolicy: OnFailure
+---
+# Test Replace policy
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: long-running-replace
+spec:
+  schedule: "*/2 * * * *"  # Every 2 minutes
+  concurrencyPolicy: Replace
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: replaceable-task
+            image: busybox:1.35
+            command:
+            - sh
+            - -c
+            - |
+              echo "Replaceable task $HOSTNAME started at $(date)"
+              sleep 180  # Sleep for 3 minutes
+              echo "Replaceable task $HOSTNAME completed at $(date)"
+            resources:
+              requests:
+                memory: "16Mi"
+                cpu: "25m"
+          restartPolicy: OnFailure
