@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: log-cleanup
+spec:
+  # Run every Sunday at 3 AM
+  schedule: "0 3 * * 0"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cleanup
+            image: busybox:1.35
+            command:
+            - sh
+            - -c
+            - |
+              echo "Starting log cleanup at $(date)"
+              
+              # Simulate log cleanup
+              LOG_DIRS="/var/log/app /var/log/nginx /var/log/system"
+              
+              for dir in $LOG_DIRS; do
+                echo "Cleaning logs in $dir"
+                
+                # Find and "delete" logs older than 30 days
+                echo "Finding logs older than 30 days in $dir..."
+                
+                # Simulate finding old files
+                OLD_FILES=$((RANDOM % 20 + 5))
+                FREED_SPACE=$((OLD_FILES * RANDOM % 1000 + 100))
+                
+                echo "Found $OLD_FILES old log files"
+                echo "Freed ${FREED_SPACE}MB of disk space"
+                
+                sleep 2
+              done
+              
+              echo "Log cleanup completed at $(date)"
+            resources:
+              requests:
+                memory: "32Mi"
+                cpu: "50m"
+          restartPolicy: OnFailure
