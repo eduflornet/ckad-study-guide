@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-demo
+  labels:
+    app: init-demo
+spec:
+  initContainers:
+  # First init container
+  - name: init-setup
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Init container 1: Setting up environment..."
+      echo "Creating configuration files..."
+      echo "database_url=localhost:5432" > /shared-data/config.txt
+      echo "debug_mode=true" >> /shared-data/config.txt
+      echo "Init setup completed at $(date)"
+      sleep 5
+    volumeMounts:
+    - name: shared-data
+      mountPath: /shared-data
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+  
+  # Second init container
+  - name: init-database
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Init container 2: Checking database connectivity..."
+      
+      # Read config from previous init container
+      if [ -f /shared-data/config.txt ]; then
+        echo "Configuration found:"
+        cat /shared-data/config.txt
+      fi
+      
+      echo "Simulating database connection check..."
+      sleep 3
+      
+      # Simulate successful connection
+      echo "Database connection: OK"
+      echo "database_status=connected" >> /shared-data/config.txt
+      echo "Database check completed at $(date)"
+    volumeMounts:
+    - name: shared-data
+      mountPath: /shared-data
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+  
+  containers:
+  # Main application container
+  - name: app
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Main application starting..."
+      echo "Reading configuration:"
+      cat /app-data/config.txt
+      
+      echo "Application ready!"
+      
+      # Keep running
+      while true; do
+        echo "App is running at $(date)"
+        sleep 30
+      done
+    volumeMounts:
+    - name: shared-data
+      mountPath: /app-data
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  volumes:
+  - name: shared-data
+    emptyDir: {}
