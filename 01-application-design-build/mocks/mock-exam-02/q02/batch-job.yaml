@@ -1,0 +1,29 @@
+# 1. Data Processor (Job with retries)
+# Este Job procesa 5 lotes de datos en paralelo con 3 pods simultáneos.
+# Incluye límites de recursos, TTL, reintentos y tiempo máximo de ejecución.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-processor
+  namespace: batch-processing
+spec:
+  completions: 5
+  parallelism: 3
+  backoffLimit: 2
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        job: data-processor
+    spec:
+      containers:
+      - name: processor
+        image: busybox:1.35
+        command: ["sh", "-c", "for i in $(seq 1 100); do echo Processing item $i; sleep 0.1; done; echo Batch complete"]
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+      restartPolicy: Never

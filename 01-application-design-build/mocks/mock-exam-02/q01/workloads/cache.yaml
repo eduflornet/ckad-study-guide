@@ -1,0 +1,37 @@
+# Usamos un StatefulSet para Redis porque requiere persistencia, orden de inicio/apagado y nombre estable.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-cache
+spec:
+  serviceName: "redis"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
