@@ -1,0 +1,222 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  config.yaml: |
+    app:
+      name: "hot-reload-demo"
+      version: "1.0.0"
+      log_level: "INFO"
+      max_connections: 100
+      timeout: 30
+      features:
+        feature_a: true
+        feature_b: false
+        feature_c: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: config-hotreload
+spec:
+  containers:
+  # Main application
+  - name: app
+    image: python:3.11-alpine
+    command:
+    - sh
+    - -c
+    - |
+      pip install PyYAML > /dev/null 2>&1
+      python3 << 'EOF'
+      import yaml
+      import time
+      import os
+      from datetime import datetime
+      
+      config_file = '/shared-config/config.yaml'
+      last_modified = 0
+      config = {}
+      
+      def load_config():
+          global config, last_modified
+          try:
+              stat = os.stat(config_file)
+              if stat.st_mtime > last_modified:
+                  with open(config_file, 'r') as f:
+                      config = yaml.safe_load(f)
+                  last_modified = stat.st_mtime
+                  print("Configuration reloaded at", datetime.now())
+                  print("Current config:", config)
+                  return True
+          except Exception as e:
+              print("Error loading config:", e)
+          return False
+      
+      print("Application starting...")
+      
+      # Initial config load
+      load_config()
+      
+      counter = 0
+      while True:
+          counter += 1
+          
+          # Check for config changes
+          load_config()
+          
+          # Simulate application work using current config
+          app_config = config.get('app', {})
+          log_level = app_config.get('log_level', 'INFO')
+          max_connections = app_config.get('max_connections', 50)
+          
+          print("Iteration " + str(counter) + ": Running with log_level=" + log_level + ", max_connections=" + str(max_connections))
+          
+          time.sleep(5)
+      EOF
+    volumeMounts:
+    - name: shared-config
+      mountPath: /shared-config
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  # Config manager
+  - name: config-manager
+    image: python:3.11-alpine
+    command:
+    - sh
+    - -c
+    - |
+      pip install PyYAML > /dev/null 2>&1
+      python3 << 'EOF'
+      import yaml
+      import time
+      import shutil
+      import random
+      from datetime import datetime
+      
+      print("Config manager starting...")
+      
+      # Copy initial config to shared volume
+      shutil.copy('/initial-config/config.yaml', '/shared-config/config.yaml')
+      print("Initial configuration copied")
+      
+      counter = 0
+      while True:
+          time.sleep(20)  # Update config every 20 seconds
+          counter += 1
+          
+          # Load current config
+          with open('/shared-config/config.yaml', 'r') as f:
+              config = yaml.safe_load(f)
+          
+          # Make some changes
+          app_config = config['app']
+          
+          # Randomly change some settings
+          if counter % 3 == 0:
+              app_config['log_level'] = random.choice(['DEBUG', 'INFO', 'WARN', 'ERROR'])
+          
+          if counter % 4 == 0:
+              app_config['max_connections'] = random.randint(50, 200)
+          
+          if counter % 5 == 0:
+              features = app_config['features']
+              for feature in features:
+                  features[feature] = random.choice([True, False])
+          
+          # Update timestamp
+          app_config['last_update'] = datetime.now().isoformat()
+          
+          # Write updated config
+          with open('/shared-config/config.yaml', 'w') as f:
+              yaml.dump(config, f, default_flow_style=False)
+          
+          print("Configuration updated #" + str(counter) + " at " + str(datetime.now()))
+          print("New config:", config)
+      EOF
+    volumeMounts:
+    - name: initial-config
+      mountPath: /initial-config
+    - name: shared-config
+      mountPath: /shared-config
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  # Config validator
+  - name: config-validator
+    image: python:3.11-alpine
+    command:
+    - sh
+    - -c
+    - |
+      pip install PyYAML > /dev/null 2>&1
+      python3 << 'EOF'
+      import yaml
+      import time
+      import os
+      from datetime import datetime
+      
+      config_file = '/shared-config/config.yaml'
+      last_validated = 0
+      
+      def validate_config():
+          global last_validated
+          try:
+              stat = os.stat(config_file)
+              if stat.st_mtime > last_validated:
+                  with open(config_file, 'r') as f:
+                      config = yaml.safe_load(f)
+                  
+                  # Validation rules
+                  app_config = config.get('app', {})
+                  
+                  errors = []
+                  
+                  if app_config.get('max_connections', 0) < 10:
+                      errors.append("max_connections must be >= 10")
+                  
+                  if app_config.get('max_connections', 0) > 500:
+                      errors.append("max_connections must be <= 500")
+                  
+                  if app_config.get('log_level') not in ['DEBUG', 'INFO', 'WARN', 'ERROR']:
+                      errors.append("log_level must be DEBUG, INFO, WARN, or ERROR")
+                  
+                  if errors:
+                      print("CONFIG VALIDATION FAILED at " + str(datetime.now()) + ":")
+                      for error in errors:
+                          print("  - " + error)
+                  else:
+                      print("CONFIG VALIDATION PASSED at " + str(datetime.now()))
+                  
+                  last_validated = stat.st_mtime
+                  
+          except Exception as e:
+              print("Validation error:", e)
+      
+      print("Config validator starting...")
+      time.sleep(5)  # Let initial config be copied
+      
+      while True:
+          validate_config()
+          time.sleep(3)
+      EOF
+    volumeMounts:
+    - name: shared-config
+      mountPath: /shared-config
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  volumes:
+  - name: initial-config
+    configMap:
+      name: app-config
+  - name: shared-config
+    emptyDir: {}
