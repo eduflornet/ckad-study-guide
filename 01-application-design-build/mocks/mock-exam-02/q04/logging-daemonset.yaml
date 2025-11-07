@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: log-collector
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: log-collector
+  template:
+    metadata:
+      labels:
+        app: log-collector
+    spec:
+      nodeSelector:
+        logging: enabled
+      tolerations:
+        - operator: "Exists"   # Permite correr en nodos con taints (incluyendo master/control plane)
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:2.1
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: varlog
+              mountPath: /host/var/log
+              readOnly: true
+            - name: dockercontainers
+              mountPath: /host/var/lib/docker/containers
+              readOnly: true
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: dockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
