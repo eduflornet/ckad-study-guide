@@ -1,0 +1,13 @@
+Observaciones sobre Deployment vs StatefulSet:
+
+1. Deployment (web-frontend):
+   - Los pods se nombran de forma aleatoria, por ejemplo: web-frontend-5d7f9c8f7b-abcde.
+   - No existe un orden estricto de arranque; los pods pueden iniciar en paralelo.
+   - Al escalar de 3 a 5 réplicas, se crean dos pods adicionales con nombres aleatorios.
+   - Los pods no mantienen identidad persistente: si se elimina uno, el nuevo tendrá un nombre distinto.
+
+2. StatefulSet (database-cluster):
+   - Los pods se nombran de forma ordenada y estable: database-cluster-0, database-cluster-1, database-cluster-2, etc.
+   - Existe un orden de arranque: primero se crea el pod 0, luego el 1, y así sucesivamente.
+   - Al escalar de 3 a 5 réplicas, se crean database-cluster-3 y database-cluster-4.
+   - Cada pod mantiene su identidad y volumen persistente asociado (PVC), lo que garantiza almacenamiento estable.
