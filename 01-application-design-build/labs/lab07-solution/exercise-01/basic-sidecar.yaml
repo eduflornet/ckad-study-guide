@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-with-sidecar
+  labels:
+    app: sidecar-demo
+spec:
+  containers:
+  # Main application container
+  - name: web-app
+    image: nginx:1.24-alpine
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /var/log/nginx
+    - name: web-content
+      mountPath: /usr/share/nginx/html
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+      limits:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  # Sidecar logging container
+  - name: log-sidecar
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Log sidecar starting..."
+      
+      # Wait for nginx to create log files
+      while [ ! -f /shared-logs/access.log ]; do
+        echo "Waiting for access.log to be created..."
+        sleep 2
+      done
+      
+      echo "Starting to monitor access.log"
+      tail -F /shared-logs/access.log | while read line; do
+        echo "[PROCESSED] $(date '+%Y-%m-%d %H:%M:%S') - $line"
+      done
+    volumeMounts:
+    - name: shared-logs
+      mountPath: /shared-logs
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+      limits:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  volumes:
+  - name: shared-logs
+    emptyDir: {}
+  - name: web-content
+    configMap:
+      name: web-content
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-content
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Sidecar Demo</title>
+    </head>
+    <body>
+        <h1>Web Application with Sidecar Logging</h1>
+        <p>This application demonstrates the sidecar pattern for log processing.</p>
+        <p>Every request is logged and processed by the sidecar container.</p>
+        <p>Current time: <span id="time"></span></p>
+        <script>
+            document.getElementById('time').textContent = new Date().toLocaleString();
+        </script>
+    </body>
+    </html>

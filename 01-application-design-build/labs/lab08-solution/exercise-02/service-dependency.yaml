@@ -1,0 +1,178 @@
+# Service that init containers will wait for
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-service
+spec:
+  selector:
+    app: database
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_DB
+          value: "testdb"
+        - name: POSTGRES_USER
+          value: "testuser"
+        - name: POSTGRES_PASSWORD
+          value: "testpass"
+        ports:
+        - containerPort: 5432
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - testuser
+            - -d
+            - testdb
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+---
+# Application with init containers waiting for services
+apiVersion: v1
+kind: Pod
+metadata:
+  name: service-dependent-app
+spec:
+  initContainers:
+  # Wait for database service
+  - name: wait-for-database
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Waiting for database service to be available..."
+      
+      until nc -z database-service 5432; do
+        echo "Database not ready, waiting..."
+        sleep 2
+      done
+      
+      echo "Database service is available!"
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+  
+  # Wait for external API
+  - name: wait-for-api
+    image: curlimages/curl:8.4.0
+    command:
+    - sh
+    - -c
+    - |
+      echo "Waiting for external API to be available..."
+      
+      # Wait for external service (using httpbin as example)
+      until curl -f https://httpbin.org/status/200; do
+        echo "External API not ready, waiting..."
+        sleep 5
+      done
+      
+      echo "External API is available!"
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  # Download configuration
+  - name: download-config
+    image: curlimages/curl:8.4.0
+    command:
+    - sh
+    - -c
+    - |
+      echo "Downloading application configuration..."
+      
+      # Download config from external source
+      curl -s https://httpbin.org/json > /shared-config/external-config.json
+      
+      # Create local config
+      cat > /shared-config/app-config.yaml << EOF
+      app:
+        name: "service-dependent-app"
+        version: "1.0.0"
+        database:
+          host: "database-service"
+          port: 5432
+          database: "testdb"
+        external_api:
+          url: "https://httpbin.org"
+      EOF
+      
+      echo "Configuration downloaded and created:"
+      ls -la /shared-config/
+    volumeMounts:
+    - name: config-volume
+      mountPath: /shared-config
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  containers:
+  # Main application
+  - name: app
+    image: python:3.11-alpine
+    command:
+    - python
+    - -c
+    - |
+      import time
+      import json
+      import os
+      
+      print("Application starting with all dependencies ready!")
+      
+      # Read downloaded config
+      with open('/app-config/app-config.yaml', 'r') as f:
+          config = f.read()
+          print("App configuration:")
+          print(config)
+      
+      with open('/app-config/external-config.json', 'r') as f:
+          external_config = json.load(f)
+          print("External configuration loaded:")
+          print(json.dumps(external_config, indent=2))
+      
+      # Simulate application work
+      counter = 0
+      while True:
+          counter += 1
+          print(f"Application tick #{counter} at {time.ctime()}")
+          time.sleep(10)
+    volumeMounts:
+    - name: config-volume
+      mountPath: /app-config
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  volumes:
+  - name: config-volume
+    emptyDir: {}

@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-performance
+spec:
+  containers:
+  # EmptyDir volume test
+  - name: emptydir-writer
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Testing emptyDir volume performance..."
+      
+      start_time=$(date +%s)
+      for i in $(seq 1 1000); do
+        echo "Line $i: This is test data for performance measurement" >> /emptydir-vol/test-$i.txt
+      done
+      end_time=$(date +%s)
+      
+      duration=$((end_time - start_time))
+      echo "EmptyDir write test: $duration seconds for 1000 files"
+      
+      # Keep container running
+      while true; do sleep 60; done
+    volumeMounts:
+    - name: emptydir-storage
+      mountPath: /emptydir-vol
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  # Memory volume test
+  - name: memory-writer
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Testing memory volume performance..."
+      
+      start_time=$(date +%s)
+      for i in $(seq 1 1000); do
+        echo "Line $i: This is test data for performance measurement" >> /memory-vol/test-$i.txt
+      done
+      end_time=$(date +%s)
+      
+      duration=$((end_time - start_time))
+      echo "Memory volume write test: $duration seconds for 1000 files"
+      
+      # Show memory usage
+      df -h /memory-vol
+      
+      # Keep container running
+      while true; do sleep 60; done
+    volumeMounts:
+    - name: memory-storage
+      mountPath: /memory-vol
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+  
+  # Reader container for both volumes
+  - name: reader
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Volume reader starting..."
+      sleep 10  # Wait for writers to create files
+      
+      while true; do
+        echo "=== Volume Statistics ==="
+        echo "EmptyDir volume:"
+        ls /emptydir-vol/ | wc -l
+        du -sh /emptydir-vol/
+        
+        echo "Memory volume:"
+        ls /memory-vol/ | wc -l
+        du -sh /memory-vol/
+        
+        echo "========================="
+        sleep 15
+      done
+    volumeMounts:
+    - name: emptydir-storage
+      mountPath: /emptydir-vol
+    - name: memory-storage
+      mountPath: /memory-vol
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  volumes:
+  # Regular emptyDir (uses node's default storage)
+  - name: emptydir-storage
+    emptyDir: {}
+  
+  # Memory-backed emptyDir
+  - name: memory-storage
+    emptyDir:
+      medium: Memory
+      sizeLimit: 100Mi

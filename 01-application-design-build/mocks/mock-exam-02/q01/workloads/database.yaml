@@ -1,0 +1,39 @@
+# Usamos un StatefulSet para la base de datos PostgreSQL porque requiere almacenamiento persistente y un nombre estable.
+# No se configura reinicio automático para evitar reinicios en caso de corrupción de datos.
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-db
+spec:
+  serviceName: "postgres"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        restartPolicy: Never
+  volumeClaimTemplates:
+  - metadata:
+      name: pgdata
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi

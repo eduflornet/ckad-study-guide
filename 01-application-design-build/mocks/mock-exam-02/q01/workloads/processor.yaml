@@ -1,0 +1,22 @@
+# Usamos un Job para el procesador de logs porque ejecuta una tarea única y puede reintentar en caso de fallo.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: log-processor
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: log-processor
+    spec:
+      containers:
+      - name: processor
+        image: busybox
+        command: ["sh", "-c", "echo Processing logs... && exit 1"]
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+      restartPolicy: Never

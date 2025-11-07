@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: log-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: persistent-log-demo
+spec:
+  containers:
+  # Application container
+  - name: app
+    image: python:3.11-alpine
+    command:
+    - python
+    - -c
+    - |
+      import time
+      import random
+      import logging
+      
+      # Configure logging
+      logging.basicConfig(
+          filename='/app-logs/application.log',
+          level=logging.INFO,
+          format='%(asctime)s - %(levelname)s - %(message)s'
+      )
+      
+      logger = logging.getLogger(__name__)
+      
+      print("Application starting...")
+      
+      counter = 0
+      while True:
+          counter += 1
+          
+          # Generate different types of log entries
+          if counter % 10 == 0:
+              logger.error(f"Error event #{counter}")
+          elif counter % 5 == 0:
+              logger.warning(f"Warning event #{counter}")
+          else:
+              logger.info(f"Info event #{counter}")
+          
+          print(f"Generated log entry #{counter}")
+          time.sleep(random.uniform(2, 5))
+    volumeMounts:
+    - name: app-logs
+      mountPath: /app-logs
+    resources:
+      requests:
+        memory: "32Mi"
+        cpu: "50m"
+  
+  # Log aggregator sidecar
+  - name: log-aggregator
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Log aggregator starting..."
+      
+      while true; do
+        if [ -f /app-logs/application.log ]; then
+          echo "=== Processing application logs ==="
+          
+          # Count different log levels
+          INFO_COUNT=$(grep -c "INFO" /app-logs/application.log 2>/dev/null || echo 0)
+          WARN_COUNT=$(grep -c "WARNING" /app-logs/application.log 2>/dev/null || echo 0)
+          ERROR_COUNT=$(grep -c "ERROR" /app-logs/application.log 2>/dev/null || echo 0)
+          
+          # Create summary
+          echo "$(date): INFO:$INFO_COUNT, WARN:$WARN_COUNT, ERROR:$ERROR_COUNT" >> /persistent-logs/summary.log
+          
+          # Archive errors to separate file
+          grep "ERROR" /app-logs/application.log > /persistent-logs/errors.log 2>/dev/null || true
+          
+          echo "Log summary updated: INFO=$INFO_COUNT, WARN=$WARN_COUNT, ERROR=$ERROR_COUNT"
+        fi
+        
+        sleep 10
+      done
+    volumeMounts:
+    - name: app-logs
+      mountPath: /app-logs
+    - name: persistent-logs
+      mountPath: /persistent-logs
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+  
+  volumes:
+  - name: app-logs
+    emptyDir: {}
+  - name: persistent-logs
+    persistentVolumeClaim:
+      claimName: log-storage

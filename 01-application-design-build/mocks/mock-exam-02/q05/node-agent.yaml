@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-agent
+spec:
+  selector:
+    matchLabels:
+      app: agent
+  template:
+    spec:
+      containers:
+      - name: agent
+        image: monitoring-agent:latest
+      nodeSelector:
+        node-type: compute

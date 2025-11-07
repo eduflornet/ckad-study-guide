@@ -1,0 +1,255 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: migration-scripts
+data:
+  migrate.sql: |
+    -- Database migration script
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
+    CREATE TABLE IF NOT EXISTS posts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        title VARCHAR(200) NOT NULL,
+        content TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    
+    -- Insert sample data
+    INSERT INTO users (username, email) VALUES 
+        ('alice', 'alice@example.com'),
+        ('bob', 'bob@example.com')
+    ON CONFLICT (username) DO NOTHING;
+    
+    INSERT INTO posts (user_id, title, content) VALUES 
+        (1, 'Hello World', 'This is my first post'),
+        (2, 'Kubernetes Init Containers', 'Learning about init containers')
+    ON CONFLICT DO NOTHING;
+  
+  seed-data.json: |
+    {
+      "users": [
+        {"username": "charlie", "email": "charlie@example.com"},
+        {"username": "diana", "email": "diana@example.com"}
+      ],
+      "settings": {
+        "theme": "dark",
+        "notifications": true,
+        "max_posts_per_page": 10
+      }
+    }
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app-with-migration
+spec:
+  initContainers:
+  # Database migration
+  - name: db-migration
+    image: postgres:15-alpine
+    command:
+    - sh
+    - -c
+    - |
+      echo "Starting database migration..."
+      
+      # Wait for database to be ready
+      until pg_isready -h database-service -U testuser -d testdb; do
+        echo "Waiting for database..."
+        sleep 2
+      done
+      
+      echo "Running database migrations..."
+      PGPASSWORD=testpass psql -h database-service -U testuser -d testdb -f /migrations/migrate.sql
+      
+      echo "Database migration completed successfully!"
+    volumeMounts:
+    - name: migration-scripts
+      mountPath: /migrations
+    env:
+    - name: PGPASSWORD
+      value: "testpass"
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  # Data seeding
+  - name: data-seeder
+    image: python:3.11-alpine
+    command:
+    - python
+    - -c
+    - |
+      import json
+      import psycopg2
+      import time
+      
+      print("Starting data seeding...")
+      
+      # Wait a bit for migration to complete
+      time.sleep(2)
+      
+      # Load seed data
+      with open('/seed-data/seed-data.json', 'r') as f:
+          seed_data = json.load(f)
+      
+      # Connect to database
+      try:
+          conn = psycopg2.connect(
+              host="database-service",
+              database="testdb",
+              user="testuser",
+              password="testpass"
+          )
+          
+          cur = conn.cursor()
+          
+          # Seed additional users
+          for user in seed_data['users']:
+              cur.execute(
+                  "INSERT INTO users (username, email) VALUES (%s, %s) ON CONFLICT (username) DO NOTHING",
+                  (user['username'], user['email'])
+              )
+          
+          conn.commit()
+          print("Data seeding completed successfully!")
+          
+      except Exception as e:
+          print(f"Error during data seeding: {e}")
+          exit(1)
+      
+      finally:
+          if conn:
+              conn.close()
+    volumeMounts:
+    - name: migration-scripts
+      mountPath: /seed-data
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  # Configuration validation
+  - name: config-validator
+    image: python:3.11-alpine
+    command:
+    - python
+    - -c
+    - |
+      import json
+      import psycopg2
+      
+      print("Validating application configuration...")
+      
+      # Validate seed data format
+      with open('/seed-data/seed-data.json', 'r') as f:
+          config = json.load(f)
+      
+      # Check required fields
+      required_keys = ['users', 'settings']
+      for key in required_keys:
+          if key not in config:
+              print(f"Error: Missing required config key: {key}")
+              exit(1)
+      
+      # Validate database connectivity and data
+      try:
+          conn = psycopg2.connect(
+              host="database-service",
+              database="testdb",
+              user="testuser",
+              password="testpass"
+          )
+          
+          cur = conn.cursor()
+          cur.execute("SELECT COUNT(*) FROM users")
+          user_count = cur.fetchone()[0]
+          
+          cur.execute("SELECT COUNT(*) FROM posts")
+          post_count = cur.fetchone()[0]
+          
+          print(f"Validation successful: {user_count} users, {post_count} posts")
+          
+          if user_count < 2:
+              print("Warning: Expected at least 2 users")
+          
+          conn.close()
+          
+      except Exception as e:
+          print(f"Database validation failed: {e}")
+          exit(1)
+      
+      print("All validations passed!")
+    volumeMounts:
+    - name: migration-scripts
+      mountPath: /seed-data
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "100m"
+  
+  containers:
+  # Main application
+  - name: web-app
+    image: python:3.11-alpine
+    command:
+    - python
+    - -c
+    - |
+      import psycopg2
+      import json
+      import time
+      from http.server import HTTPServer, BaseHTTPRequestHandler
+      
+      class AppHandler(BaseHTTPRequestHandler):
+          def do_GET(self):
+              if self.path == '/users':
+                  self.send_response(200)
+                  self.send_header('Content-type', 'application/json')
+                  self.end_headers()
+                  
+                  try:
+                      conn = psycopg2.connect(
+                          host="database-service",
+                          database="testdb",
+                          user="testuser",
+                          password="testpass"
+                      )
+                      
+                      cur = conn.cursor()
+                      cur.execute("SELECT username, email FROM users")
+                      users = [{"username": row[0], "email": row[1]} for row in cur.fetchall()]
+                      
+                      self.wfile.write(json.dumps(users).encode())
+                      conn.close()
+                      
+                  except Exception as e:
+                      self.wfile.write(json.dumps({"error": str(e)}).encode())
+              
+              else:
+                  self.send_response(200)
+                  self.send_header('Content-type', 'text/html')
+                  self.end_headers()
+                  self.wfile.write(b"<h1>App with Init Containers</h1><p><a href='/users'>View Users</a></p>")
+      
+      print("Starting web application...")
+      server = HTTPServer(('0.0.0.0', 8080), AppHandler)
+      server.serve_forever()
+    ports:
+    - containerPort: 8080
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+  
+  volumes:
+  - name: migration-scripts
+    configMap:
+      name: migration-scripts

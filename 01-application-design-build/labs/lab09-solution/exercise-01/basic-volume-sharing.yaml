@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-sharing-demo
+  labels:
+    app: volume-demo
+spec:
+  containers:
+  # Producer container
+  - name: data-producer
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Data producer starting..."
+      counter=0
+      
+      while true; do
+        counter=$((counter + 1))
+        timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+        
+        # Write data to shared volume
+        echo "$timestamp - Data entry #$counter" >> /shared-data/producer.log
+        echo "Producer: Generated entry #$counter"
+        
+        # Create structured data file
+        cat > /shared-data/current-data.json << EOF
+      {
+        "timestamp": "$timestamp",
+        "counter": $counter,
+        "status": "active",
+        "producer_id": "$HOSTNAME"
+      }
+      EOF
+        
+        sleep 5
+      done
+    volumeMounts:
+    - name: shared-storage
+      mountPath: /shared-data
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+  
+  # Consumer container
+  - name: data-consumer
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Data consumer starting..."
+      
+      # Wait for producer to create initial data
+      while [ ! -f /shared-data/producer.log ]; do
+        echo "Waiting for producer data..."
+        sleep 2
+      done
+      
+      echo "Producer data found, starting consumption..."
+      
+      while true; do
+        # Count total entries
+        if [ -f /shared-data/producer.log ]; then
+          TOTAL_ENTRIES=$(wc -l < /shared-data/producer.log)
+          echo "Consumer: Total entries processed: $TOTAL_ENTRIES"
+        fi
+        
+        # Read current data
+        if [ -f /shared-data/current-data.json ]; then
+          echo "Current data:"
+          cat /shared-data/current-data.json
+        fi
+        
+        # Create processed data
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Processed batch with $TOTAL_ENTRIES entries" >> /shared-data/consumer.log
+        
+        sleep 10
+      done
+    volumeMounts:
+    - name: shared-storage
+      mountPath: /shared-data
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+  
+  # Monitor container
+  - name: data-monitor
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      echo "Data monitor starting..."
+      sleep 10  # Let other containers start
+      
+      while true; do
+        echo "=== Data Monitor Report ==="
+        echo "Timestamp: $(date)"
+        
+        if [ -f /shared-data/producer.log ]; then
+          PRODUCER_ENTRIES=$(wc -l < /shared-data/producer.log)
+          echo "Producer entries: $PRODUCER_ENTRIES"
+        fi
+        
+        if [ -f /shared-data/consumer.log ]; then
+          CONSUMER_ENTRIES=$(wc -l < /shared-data/consumer.log)
+          echo "Consumer entries: $CONSUMER_ENTRIES"
+        fi
+        
+        echo "Disk usage:"
+        du -h /shared-data/*
+        
+        echo "========================="
+        sleep 15
+      done
+    volumeMounts:
+    - name: shared-storage
+      mountPath: /shared-data
+    resources:
+      requests:
+        memory: "16Mi"
+        cpu: "25m"
+  
+  volumes:
+  - name: shared-storage
+    emptyDir: {}

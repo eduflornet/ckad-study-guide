@@ -232,8 +232,12 @@ data:
   
   producer.py: |
     import sys
+    import os
     sys.path.append('/scripts')
-    from queue_manager import FileQueue
+    
+    # Import the queue manager
+    exec(open('/scripts/queue-manager.py').read())
+    
     import time
     import random
     from datetime import datetime
@@ -271,11 +275,14 @@ data:
   
   consumer.py: |
     import sys
+    import os
     sys.path.append('/scripts')
-    from queue_manager import FileQueue
+    
+    # Import the queue manager
+    exec(open('/scripts/queue-manager.py').read())
+    
     import time
     import random
-    import os
     from datetime import datetime
     
     def process_task(task):
@@ -337,12 +344,15 @@ data:
   
   monitor.py: |
     import sys
-    sys.path.append('/scripts')
-    from queue_manager import FileQueue
-    import time
     import os
+    sys.path.append('/scripts')
+    
+    import time
     import json
     from datetime import datetime
+    
+    # Import the queue manager
+    exec(open('/scripts/queue-manager.py').read())
     
     def main():
         queue = FileQueue('/shared-queue/tasks.json')
@@ -529,9 +539,11 @@ spec:
   - name: app
     image: python:3.11-alpine
     command:
-    - python
+    - sh
     - -c
     - |
+      pip install PyYAML > /dev/null 2>&1
+      python3 << 'EOF'
       import yaml
       import time
       import os
@@ -549,11 +561,11 @@ spec:
                   with open(config_file, 'r') as f:
                       config = yaml.safe_load(f)
                   last_modified = stat.st_mtime
-                  print(f"Configuration reloaded at {datetime.now()}")
-                  print(f"Current config: {config}")
+                  print("Configuration reloaded at", datetime.now())
+                  print("Current config:", config)
                   return True
           except Exception as e:
-              print(f"Error loading config: {e}")
+              print("Error loading config:", e)
           return False
       
       print("Application starting...")
@@ -573,9 +585,10 @@ spec:
           log_level = app_config.get('log_level', 'INFO')
           max_connections = app_config.get('max_connections', 50)
           
-          print(f"Iteration {counter}: Running with log_level={log_level}, max_connections={max_connections}")
+          print("Iteration " + str(counter) + ": Running with log_level=" + log_level + ", max_connections=" + str(max_connections))
           
           time.sleep(5)
+      EOF
     volumeMounts:
     - name: shared-config
       mountPath: /shared-config
@@ -588,9 +601,11 @@ spec:
   - name: config-manager
     image: python:3.11-alpine
     command:
-    - python
+    - sh
     - -c
     - |
+      pip install PyYAML > /dev/null 2>&1
+      python3 << 'EOF'
       import yaml
       import time
       import shutil
@@ -634,8 +649,9 @@ spec:
           with open('/shared-config/config.yaml', 'w') as f:
               yaml.dump(config, f, default_flow_style=False)
           
-          print(f"Configuration updated #{counter} at {datetime.now()}")
-          print(f"New config: {config}")
+          print("Configuration updated #" + str(counter) + " at " + str(datetime.now()))
+          print("New config:", config)
+      EOF
     volumeMounts:
     - name: initial-config
       mountPath: /initial-config
@@ -650,9 +666,11 @@ spec:
   - name: config-validator
     image: python:3.11-alpine
     command:
-    - python
+    - sh
     - -c
     - |
+      pip install PyYAML > /dev/null 2>&1
+      python3 << 'EOF'
       import yaml
       import time
       import os
@@ -684,16 +702,16 @@ spec:
                       errors.append("log_level must be DEBUG, INFO, WARN, or ERROR")
                   
                   if errors:
-                      print(f"CONFIG VALIDATION FAILED at {datetime.now()}:")
+                      print("CONFIG VALIDATION FAILED at " + str(datetime.now()) + ":")
                       for error in errors:
-                          print(f"  - {error}")
+                          print("  - " + error)
                   else:
-                      print(f"CONFIG VALIDATION PASSED at {datetime.now()}")
+                      print("CONFIG VALIDATION PASSED at " + str(datetime.now()))
                   
                   last_validated = stat.st_mtime
                   
           except Exception as e:
-              print(f"Validation error: {e}")
+              print("Validation error:", e)
       
       print("Config validator starting...")
       time.sleep(5)  # Let initial config be copied
@@ -701,6 +719,7 @@ spec:
       while True:
           validate_config()
           time.sleep(3)
+      EOF
     volumeMounts:
     - name: shared-config
       mountPath: /shared-config
