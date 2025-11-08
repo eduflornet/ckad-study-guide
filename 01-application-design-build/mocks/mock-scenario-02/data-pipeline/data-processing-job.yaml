@@ -1,0 +1,362 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingestion-config
+data:
+  ingestion-config.json: |
+    {
+      "sources": [
+        {
+          "name": "users",
+          "url": "https://jsonplaceholder.typicode.com/users",
+          "format": "json",
+          "fallback_to_sample": true,
+          "sample_size": 1000
+        },
+        {
+          "name": "transactions",
+          "url": "https://api.example.com/transactions",
+          "format": "json",
+          "fallback_to_sample": true,
+          "sample_size": 5000
+        }
+      ]
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: validation-config
+data:
+  validation-config.json: |
+    {
+      "files": [
+        {
+          "name": "users",
+          "rules": {
+            "min_records": 10,
+            "required_fields": ["id", "name", "email"],
+            "check_duplicates": true,
+            "unique_field": "id"
+          },
+          "cleaning": {
+            "remove_nulls": true,
+            "standardize_fields": true
+          }
+        },
+        {
+          "name": "transactions", 
+          "rules": {
+            "min_records": 100,
+            "required_fields": ["id", "user_id", "amount"],
+            "check_duplicates": true,
+            "unique_field": "id"
+          }
+        }
+      ]
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transformation-config
+data:
+  transformation-config.json: |
+    {
+      "files": [
+        {
+          "name": "users",
+          "transformations": [
+            {
+              "type": "enrich",
+              "calculated_fields": {
+                "processed_at": {"type": "timestamp"}
+              }
+            }
+          ]
+        },
+        {
+          "name": "transactions",
+          "transformations": [
+            {
+              "type": "filter",
+              "conditions": [
+                {"field": "status", "operator": "equals", "value": "completed"}
+              ]
+            },
+            {
+              "type": "aggregate",
+              "group_by": ["user_id"],
+              "aggregations": {
+                "amount": ["sum", "mean", "count"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: processing-scripts
+data:
+  data-ingestion.py: |
+    # (Include the data-ingestion.py script content here)
+  data-validation.py: |
+    # (Include the data-validation.py script content here)  
+  data-transformation.py: |
+    # (Include the data-transformation.py script content here)
+  analytics-processor.py: |
+    # (Include the analytics-processor.py script content here)
+---
+# Data Ingestion Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-ingestion
+  labels:
+    pipeline: data-processing
+    stage: ingestion
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        pipeline: data-processing
+        stage: ingestion
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: ingestion
+        image: python:3.11-alpine
+        command:
+        - sh
+        - -c
+        - |
+          pip install requests pandas jsonschema numpy
+          python /scripts/data-ingestion.py
+        volumeMounts:
+        - name: processing-scripts
+          mountPath: /scripts
+        - name: ingestion-config
+          mountPath: /config
+        - name: shared-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: processing-scripts
+        configMap:
+          name: processing-scripts
+          defaultMode: 0755
+      - name: ingestion-config
+        configMap:
+          name: ingestion-config
+      - name: shared-data
+        emptyDir: {}
+---
+# Data Validation Job (depends on ingestion)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-validation
+  labels:
+    pipeline: data-processing
+    stage: validation
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        pipeline: data-processing
+        stage: validation
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: wait-for-ingestion
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for ingestion to complete..."
+          while [ ! -f /data/ingestion-summary.json ]; do
+            echo "Ingestion not complete, waiting..."
+            sleep 5
+          done
+          echo "Ingestion completed, proceeding with validation"
+        volumeMounts:
+        - name: shared-data
+          mountPath: /data
+      containers:
+      - name: validation
+        image: python:3.11-alpine
+        command:
+        - sh
+        - -c
+        - |
+          pip install requests pandas jsonschema numpy
+          python /scripts/data-validation.py
+        volumeMounts:
+        - name: processing-scripts
+          mountPath: /scripts
+        - name: validation-config
+          mountPath: /config
+        - name: shared-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: processing-scripts
+        configMap:
+          name: processing-scripts
+          defaultMode: 0755
+      - name: validation-config
+        configMap:
+          name: validation-config
+      - name: shared-data
+        emptyDir: {}
+---
+# Data Transformation Job (depends on validation)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-transformation
+  labels:
+    pipeline: data-processing
+    stage: transformation
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        pipeline: data-processing
+        stage: transformation
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: wait-for-validation
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for validation to complete..."
+          while [ ! -f /data/validation-summary.json ]; do
+            echo "Validation not complete, waiting..."
+            sleep 5
+          done
+          echo "Validation completed, proceeding with transformation"
+        volumeMounts:
+        - name: shared-data
+          mountPath: /data
+      containers:
+      - name: transformation
+        image: python:3.11-alpine
+        command:
+        - sh
+        - -c
+        - |
+          pip install requests pandas jsonschema numpy
+          python /scripts/data-transformation.py
+        volumeMounts:
+        - name: processing-scripts
+          mountPath: /scripts
+        - name: transformation-config
+          mountPath: /config
+        - name: shared-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "600m"
+      volumes:
+      - name: processing-scripts
+        configMap:
+          name: processing-scripts
+          defaultMode: 0755
+      - name: transformation-config
+        configMap:
+          name: transformation-config
+      - name: shared-data
+        emptyDir: {}
+---
+# Analytics Processing Job (depends on transformation)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: analytics-processing
+  labels:
+    pipeline: data-processing
+    stage: analytics
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        pipeline: data-processing
+        stage: analytics
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: wait-for-transformation
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for transformation to complete..."
+          while [ ! -f /data/transformation-summary.json ]; do
+            echo "Transformation not complete, waiting..."
+            sleep 5
+          done
+          echo "Transformation completed, proceeding with analytics"
+        volumeMounts:
+        - name: shared-data
+          mountPath: /data
+      containers:
+      - name: analytics
+        image: python:3.11-alpine
+        command:
+        - sh
+        - -c
+        - |
+          pip install requests pandas jsonschema numpy
+          python /scripts/analytics-processor.py
+        volumeMounts:
+        - name: processing-scripts
+          mountPath: /scripts
+        - name: shared-data
+          mountPath: /data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "600m"
+      volumes:
+      - name: processing-scripts
+        configMap:
+          name: processing-scripts
+          defaultMode: 0755
+      - name: shared-data
+        emptyDir: {}

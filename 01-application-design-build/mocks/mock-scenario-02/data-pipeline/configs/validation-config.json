@@ -1,0 +1,62 @@
+{
+  "files": [
+    {
+      "name": "users",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["id", "name", "email"],
+          "properties": {
+            "id": {"type": "integer"},
+            "name": {"type": "string"},
+            "email": {"type": "string", "format": "email"}
+          }
+        }
+      },
+      "rules": {
+        "min_records": 10,
+        "required_fields": ["id", "name", "email"],
+        "check_duplicates": true,
+        "unique_field": "id"
+      },
+      "cleaning": {
+        "remove_nulls": true,
+        "standardize_fields": true,
+        "transformations": {
+          "name": "trim",
+          "email": "lowercase"
+        }
+      }
+    },
+    {
+      "name": "transactions",
+      "rules": {
+        "min_records": 100,
+        "required_fields": ["id", "user_id", "amount"],
+        "check_duplicates": true,
+        "unique_field": "id"
+      },
+      "cleaning": {
+        "remove_nulls": false,
+        "standardize_fields": true
+      }
+    },
+    {
+      "name": "products",
+      "rules": {
+        "min_records": 10,
+        "required_fields": ["id", "title"],
+        "check_duplicates": true,
+        "unique_field": "id"
+      },
+      "cleaning": {
+        "remove_nulls": true,
+        "standardize_fields": true,
+        "transformations": {
+          "title": "trim"
+        }
+      }
+    }
+  ]
+}

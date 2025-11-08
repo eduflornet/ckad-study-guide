@@ -1,0 +1,34 @@
+{
+  "sources": [
+    {
+      "name": "users",
+      "url": "https://jsonplaceholder.typicode.com/users",
+      "format": "json",
+      "fallback_to_sample": true,
+      "sample_size": 1000,
+      "headers": {
+        "User-Agent": "DataPipeline/1.0"
+      }
+    },
+    {
+      "name": "transactions",
+      "url": "https://api.example.com/transactions",
+      "format": "json",
+      "fallback_to_sample": true,
+      "sample_size": 5000,
+      "headers": {
+        "Authorization": "Bearer fake-token"
+      },
+      "params": {
+        "limit": 5000
+      }
+    },
+    {
+      "name": "products",
+      "url": "https://fakestoreapi.com/products",
+      "format": "json",
+      "fallback_to_sample": true,
+      "sample_size": 100
+    }
+  ]
+}
