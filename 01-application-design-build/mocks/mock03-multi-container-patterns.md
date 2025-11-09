@@ -7,7 +7,7 @@
 
 ---
 
-## Question 1: Sidecar Pattern Implementation (10 minutes)
+## [Question 1: Sidecar Pattern Implementation (10 minutes)](/01-application-design-build/mocks/mock-exam-03/q01/)
 **Points**: 25%
 
 Create a multi-container Pod that implements the sidecar pattern for log processing.
@@ -43,7 +43,7 @@ Create a multi-container Pod that implements the sidecar pattern for log process
 
 ---
 
-## Question 2: Init Containers for Dependency Management (8 minutes)
+## [Question 2: Init Containers for Dependency Management (8 minutes)](/01-application-design-build/mocks/mock-exam-03/q02/)
 **Points**: 22%
 
 Create a Pod with init containers that handle service dependencies before the main application starts.

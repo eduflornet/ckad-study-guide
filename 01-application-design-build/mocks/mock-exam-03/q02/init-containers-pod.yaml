@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: database-pod
+spec:
+  volumes:
+    - name: data-volume
+      emptyDir: {}
+    - name: config-volume
+      emptyDir: {}
+  initContainers:
+    - name: init-schema
+      image: busybox:1.35
+      command:
+        - sh
+        - -c
+        - |
+          echo 'CREATE TABLE users (id INT, name VARCHAR(50));' > /shared-data/schema.sql
+          echo 'Schema file created'
+      volumeMounts:
+        - name: data-volume
+          mountPath: /shared-data
+    - name: init-config
+      image: busybox:1.35
+      command:
+        - sh
+        - -c
+        - |
+          echo -e 'port=5432\nmax_connections=100\nshared_buffers=256MB' > /shared-config/postgresql.conf
+          echo 'Config file created'
+      volumeMounts:
+        - name: config-volume
+          mountPath: /shared-config
+    - name: network-check
+      image: busybox:1.35
+      command:
+        - sh
+        - -c
+        - |
+          nslookup kubernetes.default.svc.cluster.local
+          echo 'Network connectivity verified'
+  containers:
+    - name: database
+      image: postgres:15-alpine
+      env:
+        - name: POSTGRES_DB
+          value: testdb
+        - name: POSTGRES_USER
+          value: admin
+        - name: POSTGRES_PASSWORD
+          value: secret
+      volumeMounts:
+        - name: data-volume
+          mountPath: /docker-entrypoint-initdb.d
+        - name: config-volume
+          mountPath: /etc/postgresql
+  restartPolicy: Never
