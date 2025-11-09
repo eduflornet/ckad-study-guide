@@ -7,7 +7,7 @@
 
 ---
 
-## Question 1: Multi-stage Dockerfile (8 minutes)
+## [Question 1: Multi-stage Dockerfile (8 minutes)](/01-application-design-build/mocks/mock-exam-01/q01/)
 **Points**: 15%
 
 Create a multi-stage Dockerfile for a Node.js application that:
@@ -34,7 +34,7 @@ Create a multi-stage Dockerfile for a Node.js application that:
 
 ---
 
-## Question 2: Dockerfile Security Hardening (7 minutes)
+## [Question 2: Dockerfile Security Hardening (7 minutes)](/01-application-design-build/mocks/mock-exam-01/q02/)
 **Points**: 12%
 
 Given this insecure Dockerfile, fix all security issues:
@@ -65,7 +65,7 @@ CMD python3 app.py
 
 ---
 
-## Question 3: Build and Tag Container Image (6 minutes)
+## [Question 3: Build and Tag Container Image (6 minutes)](/01-application-design-build/mocks/mock-exam-01/q03/)
 **Points**: 10%
 
 Using the Dockerfile from Question 1:
@@ -94,7 +94,7 @@ docker images node-app
 
 ---
 
-## Question 4: Optimize Dockerfile for Size (8 minutes)
+## [Question 4: Optimize Dockerfile for Size (8 minutes)](/01-application-design-build/mocks/mock-exam-01/q04/)
 **Points**: 15%
 
 Create an optimized Dockerfile for a Python Flask application:
@@ -120,7 +120,7 @@ Create an optimized Dockerfile for a Python Flask application:
 
 ---
 
-## Question 5: Container Image Inspection (6 minutes)
+## [Question 5: Container Image Inspection (6 minutes)](/01-application-design-build/mocks/mock-exam-01/q05/)
 **Points**: 10%
 
 Given a container image `nginx:1.24-alpine`:
@@ -151,7 +151,7 @@ docker history nginx:1.24-alpine
 
 ---
 
-## Question 6: Custom Base Image Creation (10 minutes)
+## [Question 6: Custom Base Image Creation (10 minutes)](/01-application-design-build/mocks/mock-exam-01/q06/)
 **Points**: 18%
 
 Create a custom base image for Python applications with these specifications:

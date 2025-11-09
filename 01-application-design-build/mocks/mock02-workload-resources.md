@@ -7,7 +7,7 @@
 
 ---
 
-## Question 1: Pod vs Deployment Decision (8 minutes)
+## [Question 1: Pod vs Deployment Decision (8 minutes)](/01-application-design-build/mocks/mock-exam-02/q01/)
 **Points**: 20%
 
 You need to deploy different types of applications. For each scenario, choose the appropriate workload resource and justify your choice:
@@ -36,7 +36,7 @@ You need to deploy different types of applications. For each scenario, choose th
 
 ---
 
-## Question 2: Job Configuration (8 minutes)
+## [Question 2: Job Configuration (8 minutes)](/01-application-design-build/mocks/mock-exam-02/q02/)
 **Points**: 18%
 
 Create a Job that processes a batch of data with these requirements:
@@ -65,7 +65,7 @@ Create a Job that processes a batch of data with these requirements:
 
 ---
 
-## Question 3: StatefulSet vs Deployment (10 minutes)
+## [Question 3: StatefulSet vs Deployment (10 minutes)](/01-application-design-build/mocks/mock-exam-02/q03/)
 **Points**: 22%
 
 Deploy two different applications to demonstrate the difference between StatefulSet and Deployment:
@@ -98,7 +98,7 @@ Create a StatefulSet for a database:
 
 ---
 
-## Question 4: DaemonSet Implementation (8 minutes)
+## [Question 4: DaemonSet Implementation (8 minutes)](/01-application-design-build/mocks/mock-exam-02/q04/)
 **Points**: 18%
 
 Create a DaemonSet for a logging agent that must run on every node:
@@ -130,7 +130,7 @@ Create a DaemonSet for a logging agent that must run on every node:
 
 ---
 
-## Question 5: Workload Resource Troubleshooting (6 minutes)
+## [Question 5: Workload Resource Troubleshooting (6 minutes)](/01-application-design-build/mocks/mock-exam-02/q05/)
 **Points**: 22%
 
 You have several problematic workload resources. Identify and fix the issues:

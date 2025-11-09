@@ -1,4 +1,4 @@
-# Mock Scenario 2: Create a Data Processing Job
+# [Mock Scenario 2: Create a Data Processing Job](/01-application-design-build/mocks/mock-scenario-02/data-pipeline/data-processing-job-spanish-explanation.md)
 
 **Objective**: Design and implement a comprehensive data processing pipeline using Kubernetes Jobs
 **Time**: 50 minutes

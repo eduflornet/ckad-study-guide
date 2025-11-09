@@ -1,4 +1,4 @@
-# Mock Scenario 1: Containerize a Node.js Application
+# [Mock Scenario 1: Containerize a Node.js Application](/01-application-design-build/mocks/mock-scenario-01/)
 
 **Objective**: Containerize a complete Node.js application with best practices
 **Time**: 45 minutes
