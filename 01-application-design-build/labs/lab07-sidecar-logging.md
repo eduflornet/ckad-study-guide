@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Basic Sidecar Pattern (15 minutes)
+## [Exercise 1: Basic Sidecar Pattern (15 minutes)](/01-application-design-build/labs/lab07-solution/exercise-01/)
 
 Create a web application with a sidecar container for log processing.
 
@@ -134,7 +134,7 @@ kubectl delete -f basic-sidecar.yaml
 
 ---
 
-## Exercise 2: Advanced Log Processing Sidecar (15 minutes)
+## [Exercise 2: Advanced Log Processing Sidecar (15 minutes)](/01-application-design-build/labs/lab07-solution/exercise-02/)
 
 Create a more sophisticated sidecar that processes and enriches logs.
 
@@ -370,7 +370,7 @@ kubectl delete -f advanced-sidecar.yaml
 
 ---
 
-## Exercise 3: Sidecar with Persistent Storage (5 minutes)
+## [Exercise 3: Sidecar with Persistent Storage (5 minutes)](/01-application-design-build/labs/lab07-solution/exercise-03/)
 
 Create a sidecar pattern that persists processed logs.
 

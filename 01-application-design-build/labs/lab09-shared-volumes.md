@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Basic Volume Sharing (10 minutes)
+## [Exercise 1: Basic Volume Sharing (10 minutes)](/01-application-design-build/labs/lab09-solution/exercise-01/)
 
 Learn fundamental concepts of volume sharing between containers.
 
@@ -171,7 +171,7 @@ kubectl delete -f basic-volume-sharing.yaml
 
 ---
 
-## Exercise 2: Advanced Communication Patterns (20 minutes)
+##  [Exercise 2: Advanced Communication Patterns (20 minutes)](/01-application-design-build/labs/lab09-solution/exercise-02/)
 
 Implement sophisticated inter-container communication patterns.
 
@@ -762,7 +762,7 @@ kubectl delete -f config-hotreload.yaml
 
 ---
 
-## Exercise 3: Volume Types and Performance (5 minutes)
+## [Exercise 3: Volume Types and Performance (5 minutes)](/01-application-design-build/labs/lab09-solution/exercise-03/)
 
 Compare different volume types for inter-container communication.
 
