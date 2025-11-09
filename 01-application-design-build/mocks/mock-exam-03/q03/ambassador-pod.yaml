@@ -1,0 +1,24 @@
+# ambassador-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ambassador-pod
+spec:
+  containers:
+  - name: db-ambassador
+    image: haproxy:2.8-alpine
+    ports:
+    - containerPort: 5432
+    volumeMounts:
+    - name: haproxy-config
+      mountPath: /usr/local/etc/haproxy/haproxy.cfg
+      subPath: haproxy.cfg
+  - name: app
+    image: busybox:1.35
+    command: ["sh", "-c", "while true; do echo 'Connecting to database via ambassador on localhost:5432'; nc -z localhost 5432 && echo 'Connection successful' || echo 'Connection failed'; sleep 30; done"]
+  volumes:
+  - name: haproxy-config
+    configMap:
+      name: db-ambassador-config
+  # Compartir el namespace de red
+  shareProcessNamespace: true
