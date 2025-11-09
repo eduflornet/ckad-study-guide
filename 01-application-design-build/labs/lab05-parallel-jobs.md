@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Fixed Completion Parallel Jobs (15 minutes)
+## [Exercise 1: Fixed Completion Parallel Jobs (15 minutes)](/01-application-design-build/labs/lab05-solution/exercise-01/)
 
 Learn to run jobs with fixed number of completions in parallel.
 
@@ -164,7 +164,7 @@ kubectl delete -f dynamic-parallel.yaml
 
 ---
 
-## Exercise 2: Work Queue Pattern (15 minutes)
+## [Exercise 2: Work Queue Pattern (15 minutes)](/01-application-design-build/labs/lab05-solution/exercise-02/)
 
 Implement jobs that process from a shared work queue.
 
@@ -368,7 +368,7 @@ This manifest implements the Work Queue Pattern:
 
 ---
 
-## Exercise 3: Advanced Parallel Patterns (5 minutes)
+## [Exercise 3: Advanced Parallel Patterns (5 minutes)](/01-application-design-build/labs/lab05-solution/exercise-03/)
 
 Explore indexed jobs and advanced parallelism.
 

@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Simple Python Application (10 minutes)
+## [Exercise 1: Simple Python Application (10 minutes)](/01-application-design-build/labs/lab01-solution/exercise-01/)
 
 Create a basic Python web application and containerize it.
 
@@ -92,7 +92,7 @@ docker rm python-app
 
 ---
 
-## Exercise 2: Node.js Application with Best Practices (15 minutes)
+## [Exercise 2: Node.js Application with Best Practices (15 minutes)](/01-application-design-build/labs/lab01-solution/exercise-02/)
 
 Create a more robust Dockerfile following best practices.
 
@@ -211,7 +211,7 @@ docker rm node-app
 
 ---
 
-## Exercise 3: Dockerfile Optimization (5 minutes)
+## [Exercise 3: Dockerfile Optimization (5 minutes)](/01-application-design-build/labs/lab01-solution/exercise-03/)
 
 Compare different Dockerfile approaches.
 

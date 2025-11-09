@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Basic Job Creation (10 minutes)
+## [Exercise 1: Basic Job Creation (10 minutes)](/01-application-design-build/labs/lab04-solution/exercise-01/)
 
 Create simple jobs to understand the basic concepts.
 
@@ -111,7 +111,7 @@ kubectl delete -f simple-job.yaml
 
 ---
 
-## Exercise 2: Job with Different Completion Patterns (10 minutes)
+## [Exercise 2: Job with Different Completion Patterns (10 minutes)](/01-application-design-build/labs/lab04-solution/exercise-02/)
 
 Explore different job completion and parallelism patterns.
 
@@ -240,7 +240,7 @@ kubectl delete -f work-queue-job.yaml
 
 ---
 
-## Exercise 3: Job Failure and Retry Handling (5 minutes)
+## [Exercise 3: Job Failure and Retry Handling (5 minutes)](/01-application-design-build/labs/lab04-solution/exercise-03/)
 
 Learn how jobs handle failures and retries.
 

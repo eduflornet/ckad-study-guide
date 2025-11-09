@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Simple Multi-Stage Build (15 minutes)
+## [Exercise 1: Simple Multi-Stage Build (15 minutes)](/01-application-design-build/labs/lab02-solution/exercise-01/)
 
 Create a Go application with a multi-stage build to demonstrate size reduction.
 
@@ -147,7 +147,7 @@ docker stop go-multi && docker rm go-multi
 
 ---
 
-## Exercise 2: Advanced Multi-Stage with Asset Compilation (20 minutes)
+## [Exercise 2: Advanced Multi-Stage with Asset Compilation (20 minutes)](/01-application-design-build/labs/lab02-solution/exercise-02/)
 
 Build a React application with a multi-stage build for frontend assets.
 
@@ -358,7 +358,7 @@ docker stop react-app && docker rm react-app
 
 ---
 
-## Exercise 3: Complex Multi-Stage with Multiple Languages (10 minutes)
+## [Exercise 3: Complex Multi-Stage with Multiple Languages (10 minutes)](/01-application-design-build/labs/lab02-solution/exercise-03/)
 
 Build an application that requires multiple build environments.
 

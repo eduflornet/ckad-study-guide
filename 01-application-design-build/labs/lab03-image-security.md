@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Security Hardening Techniques (15 minutes)
+## [Exercise 1: Security Hardening Techniques (15 minutes)](/01-application-design-build/labs/lab03-solution/exercise-01/)
 
 Create secure container images using various hardening techniques.
 
@@ -150,7 +150,7 @@ docker rm app-insecure app-secure
 
 ---
 
-## Exercise 2: Vulnerability Scanning with Trivy (15 minutes)
+## [Exercise 2: Vulnerability Scanning with Trivy (15 minutes)](/01-application-design-build/labs/lab03-solution/exercise-02/)
 
 Install and use Trivy for vulnerability scanning.
 
@@ -248,7 +248,7 @@ docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
 
 ---
 
-## Exercise 3: Secrets and Sensitive Data Management (10 minutes)
+## [Exercise 3: Secrets and Sensitive Data Management (10 minutes)](/01-application-design-build/labs/lab03-solution/exercise-03/)
 
 Learn to handle secrets securely in containers.
 

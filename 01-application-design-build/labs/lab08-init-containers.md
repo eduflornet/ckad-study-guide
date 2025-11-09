@@ -8,7 +8,7 @@
 
 ---
 
-## Exercise 1: Basic Init Container Concepts (10 minutes)
+## [Exercise 1: Basic Init Container Concepts (10 minutes](/01-application-design-build/labs/lab08-solution/exercise-01/)
 
 Learn init container fundamentals and execution order.
 
@@ -131,7 +131,7 @@ kubectl delete -f basic-init.yaml
 
 ---
 
-## Exercise 2: Real-World Init Container Scenarios (15 minutes)
+## [Exercise 2: Real-World Init Container Scenarios (15 minutes)](/01-application-design-build/labs/lab08-solution/exercise-02/)
 
 Implement practical init container use cases.
 
@@ -633,7 +633,7 @@ pkill -f "kubectl port-forward"
 
 ---
 
-## Exercise 3: Init Container Failure Handling (5 minutes)
+## [Exercise 3: Init Container Failure Handling (5 minutes)](/01-application-design-build/labs/lab08-solution/exercise-03/)
 
 Learn how init container failures are handled.
 

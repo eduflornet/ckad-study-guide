@@ -42,7 +42,7 @@ DAY_OF_WEEK 0–7     (0 and 7 = Sunday) Day of the week
 
 ---
 
-## Exercise 1: Basic CronJob Creation (10 minutes)
+## [Exercise 1: Basic CronJob Creation (10 minutes)](/01-application-design-build/labs/lab06-solution/exercise-01/)
 
 Learn to create and manage scheduled jobs.
 
@@ -176,7 +176,7 @@ kubectl delete -f schedule-examples.yaml
 
 ---
 
-## Exercise 2: CronJob Configuration and Management (15 minutes)
+## [Exercise 2: CronJob Configuration and Management (15 minutes)](/01-application-design-build/labs/lab06-solution/exercise-02/)
 
 Explore advanced CronJob features and management.
 
@@ -409,7 +409,7 @@ kubectl delete -f concurrency-test.yaml
 
 ---
 
-## Exercise 3: Real-World CronJob Examples (5 minutes)
+## [Exercise 3: Real-World CronJob Examples (5 minutes)](/01-application-design-build/labs/lab06-solution/exercise-03/)
 
 Create practical CronJob examples.
 
