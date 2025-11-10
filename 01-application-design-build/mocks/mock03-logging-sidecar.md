@@ -1,4 +1,4 @@
-# Mock Scenario 3: Implement a Logging Sidecar Pattern
+# [Mock Scenario 3: Implement a Logging Sidecar Pattern](/01-application-design-build/mocks/mock-scenario-03/)
 
 **Objective**: Design and implement a comprehensive logging solution using sidecar containers
 **Time**: 45 minutes
@@ -31,7 +31,7 @@ The logging solution must support:
 
 ## Implementation Tasks
 
-### Task 1: Create Application Components (15 minutes)
+###[Task 1: Create Application Components (15 minutes)](/01-application-design-build/mocks/mock-scenario-03/logging-demo/)
 
 Create the main application that generates various types of logs:
 
