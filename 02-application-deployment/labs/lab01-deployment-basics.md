@@ -13,7 +13,7 @@
 - Work with ReplicaSets
 - Configure resource requirements
 
-## Exercise 1: Create Your First Deployment (10 minutes)
+## [Exercise 1: Create Your First Deployment (10 minutes)](/02-application-deployment/labs/lab01-solution/exercise-01/)
 
 ### Task 1.1: Create a Basic Deployment
 
@@ -96,7 +96,7 @@ kubectl get pods -l app=nginx -w
 kubectl rollout status deployment/nginx-app
 ```
 
-## Exercise 2: Scaling Deployments (10 minutes)
+## [Exercise 2: Scaling Deployments (10 minutes)](/02-application-deployment/labs/lab01-solution/exercise-02/)
 
 ### Task 2.1: Manual Scaling
 
@@ -226,7 +226,7 @@ kubectl get deployment nginx-app
 kubectl get rs -l app=nginx
 ```
 
-## Exercise 4: Advanced Deployment Features (Bonus)
+## [Exercise 4: Advanced Deployment Features (Bonus)](/02-application-deployment/labs/lab01-solution/exercise-04/)
 
 ### Task 4.1: Deployment with Multiple Containers
 
