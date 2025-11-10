@@ -13,7 +13,7 @@
 - Manage deployment history
 - Handle failed deployments
 
-## Exercise 1: Rolling Updates (15 minutes)
+## [Exercise 1: Rolling Updates (15 minutes)](/02-application-deployment/labs/lab02-solution/exercise-01/)
 
 ### Task 1.1: Create Initial Deployment
 
@@ -110,7 +110,7 @@ kubectl get pods -l app=rolling-test -o custom-columns=NAME:.metadata.name,IMAGE
 kubectl describe deployment rolling-app | grep Image
 ```
 
-## Exercise 2: Update Strategies (10 minutes)
+## [Exercise 2: Update Strategies (10 minutes)](/02-application-deployment/labs/lab02-solution/exercise-02/)
 
 ### Task 2.1: Configure Rolling Update Parameters
 
@@ -265,7 +265,7 @@ kubectl rollout status deployment/rolling-app
 kubectl get pods -l app=rolling-test
 ```
 
-## Exercise 5: Advanced Rolling Update Scenarios (Bonus)
+## [Exercise 5: Advanced Rolling Update Scenarios (Bonus)](/02-application-deployment/labs/lab02-solution/exercise-05/)
 
 ### Task 5.1: Pause and Resume Rollouts
 
