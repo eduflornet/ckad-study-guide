@@ -91,7 +91,7 @@ Create a Pod with init containers that handle service dependencies before the ma
 
 ---
 
-## Question 3: Ambassador Pattern for External Service Access (8 minutes)
+## [Question 3: Ambassador Pattern for External Service Access (8 minutes)](/01-application-design-build/mocks/mock-exam-03/q03/)
 **Points**: 25%
 
 Implement the ambassador pattern to manage external database connections through a proxy container.
@@ -146,7 +146,7 @@ backend db_backend
 
 ---
 
-## Question 4: Adapter Pattern for Log Format Standardization (9 minutes)
+## [Question 4: Adapter Pattern for Log Format Standardization (9 minutes)](/01-application-design-build/mocks/mock-exam-03/q04/)
 **Points**: 28%
 
 Create a multi-container Pod using the adapter pattern to standardize log formats from different applications.
