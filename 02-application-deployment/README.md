@@ -21,15 +21,15 @@
 
 ## 🛠️ Practice Labs
 
-### Lab 1: Deployments
-- [Create and scale deployments](labs/lab01-deployment-basics.md)
-- [Rolling updates and rollbacks](labs/lab02-rolling-updates.md)
-- [Deployment strategies](labs/lab03-deployment-strategies.md)
+### Labs: Deployments
+- [01. Create and scale deployments](labs/lab01-deployment-basics.md)
+- [02. Rolling updates and rollbacks](labs/lab02-rolling-updates.md)
+- [03. Deployment strategies](labs/lab03-deployment-strategies.md)
 
-### Lab 2: Helm
-- [Install and use Helm charts](labs/lab04-helm-basics.md)
-- [Create custom Helm charts](labs/lab05-custom-charts.md)
-- [Manage releases](labs/lab06-helm-releases.md)
+### Labs: Helm
+- [04. Install and use Helm charts](labs/lab04-helm-basics.md)
+- [05. Create custom Helm charts](labs/lab05-custom-charts.md)
+- [06. Manage releases](labs/lab06-helm-releases.md)
 
 ## ⚡ Quick Drills
 

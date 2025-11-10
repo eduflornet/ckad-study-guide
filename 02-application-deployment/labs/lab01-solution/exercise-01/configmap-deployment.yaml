@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configmap-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: configmap-test
+  template:
+    metadata:
+      labels:
+        app: configmap-test
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        env:
+        - name: SERVER_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: nginx-config
+              key: server_name
+        ports:
+        - containerPort: 80

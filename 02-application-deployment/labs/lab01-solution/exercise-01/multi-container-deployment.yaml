@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-container-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: multi-container
+  template:
+    metadata:
+      labels:
+        app: multi-container
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: shared-volume
+          mountPath: /usr/share/nginx/html
+      - name: content-generator
+        image: busybox:1.35
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            echo "<h1>Current time: Mon Nov 10 04:35:10 PM CET 2025</h1>" > /shared/index.html
+            sleep 30
+          done
+        volumeMounts:
+        - name: shared-volume
+          mountPath: /shared
+      volumes:
+      - name: shared-volume
+        emptyDir: {}
