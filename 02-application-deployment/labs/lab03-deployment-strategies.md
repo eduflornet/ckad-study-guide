@@ -13,7 +13,7 @@
 - Configure automated rollbacks
 - Monitor deployment health
 
-## Exercise 1: Blue-Green Deployment Strategy (15 minutes)
+## [Exercise 1: Blue-Green Deployment Strategy (15 minutes)](/02-application-deployment/labs/lab03-solution/exercise-01/)
 
 ### Task 1.1: Setup Blue Environment
 
