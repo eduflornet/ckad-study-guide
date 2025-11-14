@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ab-testing-demo
+---
+# Version A
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-version-a
+  namespace: ab-testing-demo
+  labels:
+    app: ab-test-app
+    version: a
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: ab-test-app
+      version: a
+  template:
+    metadata:
+      labels:
+        app: ab-test-app
+        version: a
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.20
+        ports:
+        - containerPort: 80
+        env:
+        - name: VERSION
+          value: "version-a"
+        - name: FEATURE_FLAG
+          value: "old-ui"
+---
+# Version B
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-version-b
+  namespace: ab-testing-demo
+  labels:
+    app: ab-test-app
+    version: b
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: ab-test-app
+      version: b
+  template:
+    metadata:
+      labels:
+        app: ab-test-app
+        version: b
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        env:
+        - name: VERSION
+          value: "version-b"
+        - name: FEATURE_FLAG
+          value: "new-ui"
+---
+# Service for A/B testing
+apiVersion: v1
+kind: Service
+metadata:
+  name: ab-test-service
+  namespace: ab-testing-demo
+spec:
+  selector:
+    app: ab-test-app  # Routes to both versions
+  ports:
+  - port: 80
+    targetPort: 80
+---
+# Dedicated services for each version
+apiVersion: v1
+kind: Service
+metadata:
+  name: version-a-service
+  namespace: ab-testing-demo
+spec:
+  selector:
+    app: ab-test-app
+    version: a
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: version-b-service
+  namespace: ab-testing-demo
+spec:
+  selector:
+    app: ab-test-app
+    version: b
+  ports:
+  - port: 80
+    targetPort: 80
