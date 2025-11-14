@@ -1,0 +1,30 @@
+replicaCount: 3
+
+image:
+  registry: docker.io
+  repository: bitnami/nginx
+  tag: "1.21"
+
+service:
+  type: LoadBalancer
+  port: 80
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+metrics:
+  enabled: true
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
