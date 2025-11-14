@@ -1,0 +1,103 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: canary-demo
+---
+# Stable version (v1)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-stable
+  namespace: canary-demo
+  labels:
+    app: canary-app
+    version: stable
+spec:
+  replicas: 9  # 90% of traffic
+  selector:
+    matchLabels:
+      app: canary-app
+      version: stable
+  template:
+    metadata:
+      labels:
+        app: canary-app
+        version: stable
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.20
+        ports:
+        - containerPort: 80
+        env:
+        - name: VERSION
+          value: "stable-v1.20"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+---
+# Canary version (v2)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-canary
+  namespace: canary-demo
+  labels:
+    app: canary-app
+    version: canary
+spec:
+  replicas: 1  # 10% of traffic
+  selector:
+    matchLabels:
+      app: canary-app
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: canary-app
+        version: canary
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        env:
+        - name: VERSION
+          value: "canary-v1.21"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+---
+# Service that includes both stable and canary
+apiVersion: v1
+kind: Service
+metadata:
+  name: canary-service
+  namespace: canary-demo
+spec:
+  selector:
+    app: canary-app  # Selects both stable and canary
+  ports:
+  - port: 80
+    targetPort: 80

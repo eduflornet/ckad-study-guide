@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-green
+  namespace: blue-green-demo
+  labels:
+    app: web-app
+    version: green
+    environment: staging
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+      version: green
+  template:
+    metadata:
+      labels:
+        app: web-app
+        version: green
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        env:
+        - name: VERSION
+          value: "green-v1.21"
+        - name: ENVIRONMENT
+          value: "staging"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 15"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-green-service
+  namespace: blue-green-demo
+  labels:
+    app: web-app
+    version: green
+spec:
+  selector:
+    app: web-app
+    version: green
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  type: ClusterIP

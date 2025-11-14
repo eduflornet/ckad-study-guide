@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: blue-green-demo
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-blue
+  namespace: blue-green-demo
+  labels:
+    app: web-app
+    version: blue
+    environment: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: web-app
+        version: blue
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.20
+        ports:
+        - containerPort: 80
+        env:
+        - name: VERSION
+          value: "blue-v1.20"
+        - name: ENVIRONMENT
+          value: "production"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 15"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+  namespace: blue-green-demo
+  labels:
+    app: web-app
+spec:
+  selector:
+    app: web-app
+    version: blue  # Initially pointing to blue
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-public
+  namespace: blue-green-demo
+  labels:
+    app: web-app
+spec:
+  selector:
+    app: web-app
+    version: blue
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  type: LoadBalancer
