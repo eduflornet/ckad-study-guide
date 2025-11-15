@@ -32,7 +32,7 @@ chmod +x /usr/local/bin/helm
 helm version
 ```
 
-## Exercise 1: Helm Setup and Repository Management (10 minutes)
+## [Exercise 1: Helm Setup and Repository Management (10 minutes)](/02-application-deployment/labs/lab04-solution/exercise-01/)
 
 ### Task 1.1: Initialize Helm
 
@@ -87,7 +87,7 @@ helm show values bitnami/apache > apache-values.yaml
 cat apache-values.yaml
 ```
 
-## Exercise 2: Deploying Applications with Helm (15 minutes)
+## [Exercise 2: Deploying Applications with Helm (15 minutes)](/02-application-deployment/labs/lab04-solution/exercise-02/)
 
 ### Task 2.1: Deploy NGINX with Default Values
 
@@ -208,7 +208,7 @@ helm install my-apache bitnami/apache \
 kubectl get all -n helm-demo -l app.kubernetes.io/name=apache
 ```
 
-## Exercise 3: Managing Helm Releases (10 minutes)
+## [Exercise 3: Managing Helm Releases (10 minutes)](/02-application-deployment/labs/lab04-solution/exercise-03/)
 
 ### Task 3.1: List and Inspect Releases
 
@@ -304,7 +304,7 @@ helm uninstall my-apache --namespace helm-demo --keep-history
 helm history my-apache --namespace helm-demo
 ```
 
-## Exercise 4: Working with Chart Values (Bonus)
+## [Exercise 4: Working with Chart Values (Bonus)](/02-application-deployment/labs/lab04-solution/exercise-04/)
 
 ### Task 4.1: Understanding Chart Structure
 
@@ -353,7 +353,7 @@ helm install my-dry-run bitnami/nginx \
   --dry-run
 ```
 
-## Exercise 5: Advanced Helm Operations (Bonus)
+## [Exercise 5: Advanced Helm Operations (Bonus)](/02-application-deployment/labs/lab04-solution/exercise-05/)
 
 ### Task 5.1: Chart Dependencies
 
