@@ -1,0 +1,25 @@
+replicaCount: 2
+
+image:
+  tag: "2.4"
+
+service:
+  type: ClusterIP
+  port: 8080
+
+httpd:
+  enableXFF: true
+  
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+persistence:
+  enabled: false
+
+metrics:
+  enabled: true
