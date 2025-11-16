@@ -27,25 +27,25 @@
 
 ## 🛠️ Practice Labs
 
-### Lab 1: ConfigMaps and Secrets
-- [Create and use ConfigMaps](labs/lab01-configmaps.md)
-- [Manage Secrets securely](labs/lab02-secrets.md)
-- [Environment variable injection](labs/lab03-env-variables.md)
+### Labs: ConfigMaps and Secrets
+- [1. Create and use ConfigMaps](labs/lab01-configmaps.md)
+- [2. Manage Secrets securely](labs/lab02-secrets.md)
+- [3. Environment variable injection](labs/lab03-environment-variables.md)
 
-### Lab 2: Security
-- [Configure security contexts](labs/lab04-security-context.md)
-- [Non-root containers](labs/lab05-non-root.md)
-- [Pod security standards](labs/lab06-pod-security.md)
+### Labs: Security
+- [4. Configure security contexts](labs/lab04-security-context.md)
+- [5. Non-root containers](labs/lab05-non-root.md)
+- [6. Pod security standards](labs/lab06-pod-security.md)
 
-### Lab 3: RBAC
-- [Create roles and bindings](labs/lab07-rbac-basics.md)
-- [ServiceAccount management](labs/lab08-serviceaccounts.md)
-- [Permission testing](labs/lab09-permission-testing.md)
+### Labs: RBAC
+- [7. Create roles and bindings](labs/lab07-rbac-basics.md)
+- [8. ServiceAccount management](labs/lab08-serviceaccounts.md)
+- [9. Permission testing](labs/lab09-permission-testing.md)
 
-### Lab 4: Resources
-- [Set resource limits](labs/lab10-resource-limits.md)
-- [Configure resource quotas](labs/lab11-resource-quotas.md)
-- [QoS classes](labs/lab12-qos-classes.md)
+### Labs: Resources
+- [10. Set resource limits](labs/lab10-resource-limits.md)
+- [11. Configure resource quotas](labs/lab11-resource-quotas.md)
+- [12. QoS classes](labs/lab12-qos-classes.md)
 
 ## ⚡ Quick Drills
 
