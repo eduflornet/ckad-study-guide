@@ -1,0 +1,295 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-blue
+  namespace: blue-green-prod
+  labels:
+    app: webapp
+    version: blue
+    environment: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webapp
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: webapp
+        version: blue
+        environment: production
+    spec:
+      initContainers:
+      - name: db-migration
+        image: node:18-alpine
+        command:
+        - sh
+        - -c
+        - |
+          echo "Running database migrations for Blue deployment..."
+          echo "Connecting to database..."
+          # Simulate migration
+          sleep 10
+          echo "Migration completed successfully"
+        env:
+        - name: DB_HOST
+          value: "postgres-service"
+        - name: DB_USER
+          value: "webapp"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: db_password
+        - name: DB_NAME
+          value: "ecommerce"
+      containers:
+      - name: webapp
+        image: node:18-alpine
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: NODE_ENV
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: LOG_LEVEL
+        - name: APP_VERSION
+          value: "blue-v1.0.0"
+        - name: DEPLOYMENT_COLOR
+          value: "blue"
+        - name: DB_HOST
+          value: "postgres-service"
+        - name: DB_USER
+          value: "webapp"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: db_password
+        - name: DB_NAME
+          value: "ecommerce"
+        - name: REDIS_HOST
+          value: "redis-service"
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: redis_password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: jwt_secret
+        command:
+        - sh
+        - -c
+        - |
+          cat << 'NODEAPP' > app.js
+          const express = require('express');
+          const redis = require('redis');
+          const { Pool } = require('pg');
+          
+          const app = express();
+          const port = process.env.PORT || 3000;
+          
+          // Database connection
+          const pool = new Pool({
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME,
+            port: 5432,
+          });
+          
+          // Redis connection
+          const redisClient = redis.createClient({
+            host: process.env.REDIS_HOST,
+            port: 6379,
+            password: process.env.REDIS_PASSWORD
+          });
+          
+          // Health check endpoint
+          app.get('/health', async (req, res) => {
+            try {
+              // Check database
+              await pool.query('SELECT 1');
+              
+              // Check Redis
+              await redisClient.ping();
+              
+              res.json({
+                status: 'healthy',
+                version: process.env.APP_VERSION,
+                color: process.env.DEPLOYMENT_COLOR,
+                timestamp: new Date().toISOString(),
+                environment: process.env.NODE_ENV,
+                checks: {
+                  database: 'ok',
+                  redis: 'ok'
+                }
+              });
+            } catch (error) {
+              res.status(500).json({
+                status: 'unhealthy',
+                error: error.message,
+                version: process.env.APP_VERSION,
+                color: process.env.DEPLOYMENT_COLOR
+              });
+            }
+          });
+          
+          // Readiness check
+          app.get('/ready', (req, res) => {
+            res.json({
+              status: 'ready',
+              version: process.env.APP_VERSION,
+              color: process.env.DEPLOYMENT_COLOR,
+              timestamp: new Date().toISOString()
+            });
+          });
+          
+          // Main application endpoint
+          app.get('/', (req, res) => {
+            res.json({
+              message: 'E-commerce Application',
+              version: process.env.APP_VERSION,
+              color: process.env.DEPLOYMENT_COLOR,
+              environment: process.env.NODE_ENV,
+              timestamp: new Date().toISOString(),
+              features: {
+                analytics: true,
+                notifications: true,
+                newFeature: false
+              }
+            });
+          });
+          
+          // API endpoint with database interaction
+          app.get('/api/products', async (req, res) => {
+            try {
+              const result = await pool.query('SELECT 1 as id, \'Sample Product\' as name, 29.99 as price');
+              res.json({
+                products: result.rows,
+                version: process.env.APP_VERSION,
+                color: process.env.DEPLOYMENT_COLOR,
+                cached: false
+              });
+            } catch (error) {
+              res.status(500).json({ error: error.message });
+            }
+          });
+          
+          // User session endpoint with Redis
+          app.get('/api/session/:userId', async (req, res) => {
+            try {
+              const userId = req.params.userId;
+              const sessionData = {
+                userId: userId,
+                loginTime: new Date().toISOString(),
+                version: process.env.APP_VERSION,
+                color: process.env.DEPLOYMENT_COLOR
+              };
+              
+              await redisClient.setex(`session:${userId}`, 3600, JSON.stringify(sessionData));
+              
+              res.json({
+                message: 'Session created',
+                session: sessionData
+              });
+            } catch (error) {
+              res.status(500).json({ error: error.message });
+            }
+          });
+          
+          // Graceful shutdown
+          process.on('SIGTERM', () => {
+            console.log('Received SIGTERM, closing connections...');
+            redisClient.quit();
+            pool.end();
+            process.exit(0);
+          });
+          
+          app.listen(port, () => {
+            console.log(`Blue app listening on port ${port}`);
+            console.log(`Version: ${process.env.APP_VERSION}`);
+            console.log(`Environment: ${process.env.NODE_ENV}`);
+          });
+          NODEAPP
+          
+          # Install dependencies and start app
+          npm init -y
+          npm install express redis pg
+          node app.js
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - "sleep 15"  # Grace period for connections to drain
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-blue-service
+  namespace: blue-green-prod
+  labels:
+    app: webapp
+    version: blue
+spec:
+  selector:
+    app: webapp
+    version: blue
+  ports:
+  - port: 80
+    targetPort: 3000
+    name: http
+  type: ClusterIP
+---
+# Main service that will switch between blue and green
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+  namespace: blue-green-prod
+  labels:
+    app: webapp
+spec:
+  selector:
+    app: webapp
+    version: blue  # Initially pointing to blue
+  ports:
+  - port: 80
+    targetPort: 3000
+    name: http
+  type: ClusterIP
