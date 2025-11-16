@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "my-web-app.fullname" . }}-post-install
+  labels:
+    {{- include "my-web-app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "my-web-app.fullname" . }}-post-install
+      labels:
+        {{- include "my-web-app.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: post-install
+        image: curlimages/curl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Post-install hook: Verifying deployment..."
+          
+          # Wait for service to be ready
+          sleep 30
+          
+          # Test application health
+          if curl -f http://{{ include "my-web-app.fullname" . }}:{{ .Values.service.port }}/; then
+            echo "Application is responding correctly"
+          else
+            echo "Application health check failed"
+            exit 1
+          fi
+          
+          echo "Post-install hook completed successfully"

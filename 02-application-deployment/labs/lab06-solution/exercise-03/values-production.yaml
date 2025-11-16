@@ -1,0 +1,38 @@
+replicaCount: 5
+
+image:
+  repository: nginx
+  tag: "1.21-alpine"
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+nodeSelector:
+  node-type: production
+
+tolerations:
+- key: "production"
+  operator: "Equal"
+  value: "true"
+  effect: "NoSchedule"
+
+env:
+  APP_ENV: production
+  LOG_LEVEL: warn
+  CACHE_TTL: "3600"

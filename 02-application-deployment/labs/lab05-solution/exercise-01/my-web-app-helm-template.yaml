@@ -1,0 +1,108 @@
+---
+# Source: my-web-app/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-web-app
+  labels:
+    helm.sh/chart: my-web-app-0.1.0
+    app.kubernetes.io/name: my-web-app
+    app.kubernetes.io/instance: my-web-app
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken:
+---
+# Source: my-web-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-web-app
+  labels:
+    helm.sh/chart: my-web-app-0.1.0
+    app.kubernetes.io/name: my-web-app
+    app.kubernetes.io/instance: my-web-app
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: my-web-app
+    app.kubernetes.io/instance: my-web-app
+---
+# Source: my-web-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-web-app
+  labels:
+    helm.sh/chart: my-web-app-0.1.0
+    app.kubernetes.io/name: my-web-app
+    app.kubernetes.io/instance: my-web-app
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: my-web-app
+      app.kubernetes.io/instance: my-web-app
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: my-web-app-0.1.0
+        app.kubernetes.io/name: my-web-app
+        app.kubernetes.io/instance: my-web-app
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: my-web-app
+      securityContext:
+        fsGroup: 2000
+      containers:
+        - name: my-web-app
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          image: "nginx:1.21"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+---
+# Source: my-web-app/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "my-web-app-test-connection"
+  labels:
+    helm.sh/chart: my-web-app-0.1.0
+    app.kubernetes.io/name: my-web-app
+    app.kubernetes.io/instance: my-web-app
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['my-web-app:80']
+  restartPolicy: Never

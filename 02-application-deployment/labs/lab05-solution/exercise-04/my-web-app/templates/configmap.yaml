@@ -1,0 +1,31 @@
+{{- if .Values.app }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "my-web-app.fullname" . }}-config
+  labels:
+    {{- include "my-web-app.labels" . | nindent 4 }}
+data:
+  # Application configuration
+  environment: {{ .Values.app.environment | quote }}
+  debug: {{ .Values.app.debug | quote }}
+  
+  # Feature flags
+  {{- if .Values.app.features }}
+  enable-metrics: {{ .Values.app.features.enableMetrics | quote }}
+  enable-health-check: {{ .Values.app.features.enableHealthCheck | quote }}
+  {{- end }}
+  
+  # Database configuration
+  {{- if .Values.database.enabled }}
+  database-host: {{ .Values.database.host | quote }}
+  database-port: {{ .Values.database.port | quote }}
+  database-name: {{ .Values.database.name | quote }}
+  {{- end }}
+  
+  # Redis configuration
+  {{- if .Values.redis.enabled }}
+  redis-host: {{ .Values.redis.host | quote }}
+  redis-port: {{ .Values.redis.port | quote }}
+  {{- end }}
+{{- end }}
