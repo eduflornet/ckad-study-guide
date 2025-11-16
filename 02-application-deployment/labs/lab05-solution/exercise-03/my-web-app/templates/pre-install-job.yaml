@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "my-web-app.fullname" . }}-pre-install
+  labels:
+    {{- include "my-web-app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  template:
+    metadata:
+      name: {{ include "my-web-app.fullname" . }}-pre-install
+      labels:
+        {{- include "my-web-app.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: pre-install
+        image: busybox:1.35
+        command:
+        - /bin/sh
+        - -c
+        - |
+          echo "Pre-install hook: Preparing environment..."
+          echo "Checking prerequisites..."
+          echo "Environment: {{ .Values.app.environment }}"
+          {{- if .Values.database.enabled }}
+          echo "Database will be configured"
+          {{- end }}
+          {{- if .Values.redis.enabled }}
+          echo "Redis will be configured"
+          {{- end }}
+          echo "Pre-install hook completed successfully"
