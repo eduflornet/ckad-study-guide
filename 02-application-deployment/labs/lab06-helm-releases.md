@@ -13,7 +13,7 @@
 - Monitor and troubleshoot releases
 - Implement GitOps patterns with Helm
 
-## Exercise 1: Advanced Release Operations (15 minutes)
+## [Exercise 1: Advanced Release Operations (15 minutes)](/02-application-deployment/labs/lab06-solution/exercise-01/)
 
 ### Task 1.1: Multi-Environment Release Management
 
@@ -182,7 +182,7 @@ helm upgrade webapp-prod bitnami/nginx \
   --set fullnameOverride=webapp-prod
 ```
 
-## Exercise 2: Release Security and Secrets (10 minutes)
+## [Exercise 2: Release Security and Secrets (10 minutes)](/02-application-deployment/labs/lab06-solution/exercise-02/)
 
 ### Task 2.1: Working with Helm Secrets
 
@@ -359,7 +359,7 @@ helm install secure-app secure-webapp/ \
 kubectl describe pod -n production -l app.kubernetes.io/name=secure-webapp
 ```
 
-## Exercise 3: Release Monitoring and Troubleshooting (10 minutes)
+## [Exercise 3: Release Monitoring and Troubleshooting (10 minutes)](/02-application-deployment/labs/lab06-solution/exercise-03/)
 
 ### Task 3.1: Release Status Monitoring
 

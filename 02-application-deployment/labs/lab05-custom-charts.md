@@ -13,7 +13,7 @@
 - Package and share charts
 - Handle dependencies and subcharts
 
-## Exercise 1: Creating Your First Chart (15 minutes)
+## [Exercise 1: Creating Your First Chart (15 minutes)](/02-application-deployment/labs/lab05-solution/exercise-01/)
 
 ### Task 1.1: Generate Chart Scaffold
 
@@ -169,7 +169,7 @@ helm install my-web-app my-web-app/ --namespace custom-charts
 kubectl get all -n custom-charts
 ```
 
-## Exercise 2: Advanced Templating (15 minutes)
+## [Exercise 2: Advanced Templating (15 minutes)](/02-application-deployment/labs/lab05-solution/exercise-02/)
 
 ### Task 2.1: Create ConfigMap Template
 
@@ -375,7 +375,7 @@ spec:
 EOF
 ```
 
-## Exercise 3: Chart Hooks and Tests (10 minutes)
+## [Exercise 3: Chart Hooks and Tests (10 minutes)](/02-application-deployment/labs/lab05-solution/exercise-03/)
 
 ### Task 3.1: Create Pre-Install Hook
 
@@ -500,7 +500,7 @@ spec:
 EOF
 ```
 
-## Exercise 4: Chart Dependencies and Packaging (5 minutes)
+## [Exercise 4: Chart Dependencies and Packaging (5 minutes)](/02-application-deployment/labs/lab05-solution/exercise-04/)
 
 ### Task 4.1: Add Chart Dependencies
 
@@ -548,7 +548,7 @@ helm package my-web-app/
 ls *.tgz
 ```
 
-## Exercise 5: Testing Custom Chart (Bonus)
+## [Exercise 5: Testing Custom Chart (Bonus)](/02-application-deployment/labs/lab05-solution/exercise-05/)
 
 ### Task 5.1: Test with Custom Values
 

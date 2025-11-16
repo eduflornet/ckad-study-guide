@@ -1,0 +1,26 @@
+replicaCount: 2
+
+image:
+  repository: nginx
+  tag: "1.21-alpine"
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
+
+env:
+  APP_ENV: staging
+  LOG_LEVEL: info
+  CACHE_TTL: "1800"

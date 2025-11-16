@@ -1,0 +1,26 @@
+replicaCount: 1
+
+image:
+  repository: nginx
+  tag: "1.20-alpine"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 50m
+    memory: 64Mi
+  requests:
+    cpu: 25m
+    memory: 32Mi
+
+autoscaling:
+  enabled: false
+
+env:
+  APP_ENV: development
+  LOG_LEVEL: debug
+  CACHE_TTL: "300"
