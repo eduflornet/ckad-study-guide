@@ -22,22 +22,22 @@
 
 ## 🛠️ Practice Labs
 
-### Lab 1: Services
-- [ClusterIP service](labs/lab01-clusterip-service.md)
-- [NodePort service](labs/lab02-nodeport-service.md)
-- [LoadBalancer service](labs/lab03-loadbalancer-service.md)
-- [Headless service](labs/lab04-headless-service.md)
+### Labs: Services
+- [1. ClusterIP service](labs/lab01-clusterip-service.md)
+- [2. NodePort service](labs/lab02-nodeport-service.md)
+- [3. LoadBalancer service](labs/lab03-loadbalancer-service.md)
+- [4. Headless service](labs/lab04-headless-service.md)
 
-### Lab 2: Ingress
-- [Basic Ingress setup](labs/lab05-basic-ingress.md)
-- [Path-based routing](labs/lab06-path-routing.md)
-- [Host-based routing](labs/lab07-host-routing.md)
-- [TLS configuration](labs/lab08-tls-ingress.md)
+### Labs: Ingress
+- [5. Basic Ingress setup](labs/lab05-basic-ingress.md)
+- [6. Path-based routing](labs/lab06-path-routing.md)
+- [7. Host-based routing](labs/lab07-host-routing.md)
+- [8. TLS configuration](labs/lab08-tls-ingress.md)
 
-### Lab 3: Network Policies
-- [Default deny policy](labs/lab09-default-deny.md)
-- [Allow specific traffic](labs/lab10-allow-traffic.md)
-- [Namespace isolation](labs/lab11-namespace-isolation.md)
+### Labs: Network Policies
+- [9. Default deny policy](labs/lab09-default-deny.md)
+- [10. Allow specific traffic](labs/lab10-allow-traffic.md)
+- [11. Namespace isolation](labs/lab11-namespace-isolation.md)
 
 ## ⚡ Quick Drills
 
