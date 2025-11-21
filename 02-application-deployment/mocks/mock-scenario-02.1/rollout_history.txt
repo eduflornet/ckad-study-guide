@@ -1,0 +1,5 @@
+deployment.apps/payment-api-stable 
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+

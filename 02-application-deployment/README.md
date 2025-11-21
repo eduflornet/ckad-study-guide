@@ -81,7 +81,8 @@ kubectl create job myjob --image=busybox -- echo "Hello CKAD"
 # Create CronJob
 kubectl create cronjob mycron --image=busybox --schedule="*/1 * * * *" -- echo "Hello CKAD"
 
-🔹 Imperativos útiles de mantenimiento
+🔹 Useful maintenance requirements
+
 # Delete Pod/Deployment:
 kubectl delete pod mypod
 kubectl delete deployment myapp
@@ -106,6 +107,7 @@ Think speed: imperatives are your shortcut to avoid wasting time writing long ma
 
 - [Mock 1: Blue-Green deployment](mocks/mock01-blue-green-deployment.md)
 - [Mock 2: Canary release strategy](mocks/mock02-canary-release.md)
+-[Mock 2.1 Canary release strategy with imperative kubectl commands](/02-application-deployment/mocks/mock02.1-canary-strategy-imperative-commands.md)
 - [Mock 3: Helm chart deployment](mocks/mock03-helm-deployment.md)
 
 ## 🔑 Key Concepts to Master

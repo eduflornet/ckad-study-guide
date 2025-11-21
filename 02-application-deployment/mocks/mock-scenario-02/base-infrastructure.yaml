@@ -1,0 +1,177 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: canary-release
+data:
+  DATABASE_URL: "postgresql://finapp:password@postgres-service:5432/transactions"
+  REDIS_URL: "redis://redis-service:6379"
+  LOG_LEVEL: "info"
+  API_VERSION: "v1"
+  FRAUD_DETECTION_ENABLED: "true"
+  TRANSACTION_LIMIT: "10000"
+  MONITORING_ENABLED: "true"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+  namespace: canary-release
+type: Opaque
+data:
+  # echo -n 'secure-db-password' | base64
+  db_password: c2VjdXJlLWRiLXBhc3N3b3Jk
+  # echo -n 'fraud-ml-api-key' | base64
+  fraud_api_key: ZnJhdWQtbWwtYXBpLWtleQ==
+  # echo -n 'jwt-signing-secret' | base64
+  jwt_secret: and0LXNpZ25pbmctc2VjcmV0
+---
+# PostgreSQL Database
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: canary-release
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "transactions"
+        - name: POSTGRES_USER
+          value: "finapp"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: db_password
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      volumes:
+      - name: postgres-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: canary-release
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+# Redis for caching
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: canary-release
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  namespace: canary-release
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+# Metrics collection service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-collector
+  namespace: canary-release
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metrics-collector
+  template:
+    metadata:
+      labels:
+        app: metrics-collector
+    spec:
+      containers:
+      - name: metrics
+        image: busybox:1.35
+        command:
+        - sh
+        - -c
+        - |
+          echo "Starting metrics collector..."
+          while true; do
+            echo "Fri Nov 21 10:29:29 PM CET 2025: Collecting metrics..."
+            # Simulate metrics collection
+            echo "Transaction rate: 653/sec"
+            echo "Error rate: 4%"
+            echo "Response time: 230ms"
+            sleep 30
+          done
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics-service
+  namespace: canary-release
+spec:
+  selector:
+    app: metrics-collector
+  ports:
+  - port: 8080
+    targetPort: 8080
