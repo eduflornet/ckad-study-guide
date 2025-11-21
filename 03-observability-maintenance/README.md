@@ -111,6 +111,16 @@ kubectl rollout history deployment myapp
 
 This part of the exam measures your ability to monitor, debug, and maintain applications in Kubernetes, and imperatives are your best ally for reacting quickly without writing YAML.
 
+Memorize the most commonly used imperatives: logs, exec, port-forward, scale, rollout, and restart.
+
+Practice quick debugging: enter a Pod (exec -it), review logs, and scale Deployments.
+
+Remember that probes and overrides can be defined imperatively, although the exam will often require YAML.
+
+Use kubectl explain if you need to remember configuration fields.
+
+✅ In summary: The most important imperatives are kubectl logs, kubectl exec, kubectl port-forward, kubectl scale, kubectl rollout restart, along with kubectl top for metrics and kubectl delete for quick maintenance.
+
 
 
 ## 🎯 Mock Scenarios
