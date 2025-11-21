@@ -22,37 +22,64 @@
 
 ## 🛠️ Practice Labs
 
-### Lab 1: Services
-- [ClusterIP service](labs/lab01-clusterip-service.md)
-- [NodePort service](labs/lab02-nodeport-service.md)
-- [LoadBalancer service](labs/lab03-loadbalancer-service.md)
-- [Headless service](labs/lab04-headless-service.md)
+### Labs: Services
+- [1. ClusterIP service](labs/lab01-clusterip-service.md)
+- [2. NodePort service](labs/lab02-nodeport-service.md)
+- [3. LoadBalancer service](labs/lab03-loadbalancer-service.md)
+- [4. Headless service](labs/lab04-headless-service.md)
 
-### Lab 2: Ingress
-- [Basic Ingress setup](labs/lab05-basic-ingress.md)
-- [Path-based routing](labs/lab06-path-routing.md)
-- [Host-based routing](labs/lab07-host-routing.md)
-- [TLS configuration](labs/lab08-tls-ingress.md)
+### Labs: Ingress
+- [5. Basic Ingress setup](labs/lab05-basic-ingress.md)
+- [6. Path-based routing](labs/lab06-path-routing.md)
+- [7. Host-based routing](labs/lab07-host-routing.md)
+- [8. TLS configuration](labs/lab08-tls-ingress.md)
 
-### Lab 3: Network Policies
-- [Default deny policy](labs/lab09-default-deny.md)
-- [Allow specific traffic](labs/lab10-allow-traffic.md)
-- [Namespace isolation](labs/lab11-namespace-isolation.md)
+### Labs: Network Policies
+- [9. Default deny policy](labs/lab09-default-deny.md)
+- [10. Allow specific traffic](labs/lab10-allow-traffic.md)
+- [11. Namespace isolation](labs/lab11-namespace-isolation.md)
 
 ## ⚡ Quick Drills
 
 ```bash
-# Services
+🔹 Services
 kubectl expose deployment nginx --port=80 --type=ClusterIP
 kubectl expose deployment nginx --port=80 --type=NodePort
 kubectl create service clusterip my-service --tcp=80:8080
+
+# Create a ClusterIP Service (default):
+kubectl expose pod mypod --port=80 --target-port=8080
+
+# Create a Deployment Service:
+kubectl expose deployment myapp --port=80 --target-port=8080
+
+# NodePort Service:
+kubectl expose deployment myapp --port=80 --target-port=8080 --type=NodePort
+
+# View Details:
+kubectl get svc
+kubectl describe svc myapp
+
 
 # Check service endpoints
 kubectl get endpoints
 kubectl describe service nginx
 
-# Ingress
-kubectl create ingress simple --rule="foo.com/bar*=service1:8080"
+🔹 Networking (Ingress)
+
+# Create an basic ingress
+kubectl create ingress simple --rule="myapp.example.com/*=myapp:80"
+
+# Edit inmgress rules:
+kubectl edit ingress myingress
+
+🔹 Network Policies
+# Create an imperative NetworkPolicy (example: deny all incoming traffic)
+kubectl create networkpolicy deny-all --pod-selector=app=myapp --policy-types=Ingress
+
+# Add ingress rules
+kubectl create networkpolicy allow-nginx --pod-selector=app=nginx \
+  --ingress --from-pod-selector=app=frontend
 
 # Network policies
 kubectl label namespace default name=default
@@ -61,6 +88,14 @@ kubectl apply -f network-policy.yaml
 # Service discovery
 kubectl run test-pod --image=busybox -it --rm -- nslookup nginx
 ```
+🎯 Recommended approach for the exam
+Memorize the key flags: --port, --target-port, --type, --rule, --pod-selector, --policy-types.
+
+Practice with `kubectl expose` and `kubectl create ingress/networkpolicy`, as these are the most frequently used in exam scenarios.
+
+Supplement your practice with `kubectl run` and `kubectl create deployment`, because the exam often requires you to start a pod or deployment and then expose it.
+
+Use `kubectl explain <resource>` during the exam to remember YAML fields if you decide to convert imperatives into manifests.
 
 ## 🎯 Mock Scenarios
 

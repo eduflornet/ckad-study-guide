@@ -42,21 +42,73 @@
 Practice these commands until you can execute them quickly:
 
 ```bash
-# Create a simple job
-kubectl create job hello --image=busybox -- echo "Hello World"
+🔹 Pods
+# Create a simple Pod:
+kubectl run mypod --image=nginx
 
-# Create a cronjob
-kubectl create cronjob hello --image=busybox --schedule="*/1 * * * *" -- echo "Hello World"
+# Create a Pod with an exposed port:
+kubectl run mypod --image=nginx --port=80
 
-# Multi-container pod
+
+# Create a Pod with environment variables
+kubectl run mypod --image=nginx --env="MODE=prod"
+
+# Create a Pod with multiple containers
+kubectl run multipod --image=nginx --overrides='{"spec":{"containers":[{"name":"nginx","image":"nginx"},{"name":"sidecar","image":"busybox"}]}}'
+
+# Multi-container pod with YAML file
 kubectl run multi-pod --image=nginx --dry-run=client -o yaml > multi-pod.yaml
-# Edit to add sidecar container
+
+🔹 Deployments
+
+# Create a Deployment
+kubectl create deployment myapp --image=nginx
+
+# Create a Deployment with replicas
+kubectl create deployment myapp --image=nginx --replicas=3
+
+# Scale a Deployment
+kubectl scale deployment myapp --replicas=5
+
+🔹 Jobs
+
+# Create a Job that runs a command
+kubectl create job myjob --image=busybox -- echo "Hello CKAD"
+
+# Create a Job with restart policy
+kubectl create job myjob --image=busybox --restart=OnFailure -- echo "Process data"
+
+🔹 CronJobs
+
+# Create a CronJob that runs every minute:
+kubectl create cronjob mycron --image=busybox --schedule="*/1 * * * *" -- echo "Hello CKAD"
+
+🔹 Useful Design Imperatives
+
+# Create a Pod with an emptyDir volume
+kubectl run volpod --image=nginx --overrides='{"spec":{"volumes":[{"name":"cache","emptyDir":{}}],"containers":[{"name":"nginx","image":"nginx","volumeMounts":[{"mountPath":"/cache","name":"cache"}]}]}}'
+
+# Create a Pod with a ConfigMap mounted
+kubectl run cm-pod --image=nginx --overrides='{"spec":{"containers":[{"name":"nginx","image":"nginx","envFrom":[{"configMapRef":{"name":"myconfig"}}]}]}}'
+
 
 # Check job status
 kubectl get jobs
 kubectl describe job hello
 kubectl logs job/hello
 ```
+
+🎯 Exam Strategy
+Memorize the most common imperatives: kubectl run, kubectl create deployment, kubectl create job, kubectl create cronjob.
+
+Practice JSON overrides, since they allow you to quickly inject configurations (volumes, probes, multiple containers).
+
+Use kubectl explain <resource> if you need to recall YAML fields.
+
+Think speed: imperatives are shortcuts to avoid writing long manifests under time pressure.
+
+✅ In summary: The most important imperatives are kubectl run, kubectl create deployment, kubectl create job, kubectl create cronjob, plus the use of overrides for more complex Pod setups (volumes, multiple containers, probes).
+
 ## 🎯 Mock Exams
 - [Mock 1: Container images](mocks/mock01-container-images.md)
 - [Mock 2: Workload resources](mocks/mock02-workload-resources.md)

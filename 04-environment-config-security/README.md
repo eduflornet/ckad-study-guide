@@ -50,16 +50,56 @@
 ## ⚡ Quick Drills
 
 ```bash
-# ConfigMaps
-kubectl create configmap app-config --from-literal=key1=value1
+🔹 ConfigMaps
+
+# Create ConfigMap from literal values:
+kubectl create configmap app-config --from-literal=key1=value1 --from-literal=key2=value2
+
+# Create ConfigMap from file:
 kubectl create configmap app-config --from-file=config.properties
 
-# Secrets
+# View content configmap
+kubectl get configmap app-config -o yaml
+
+🔹 Secrets
+
+# Create generic secret
 kubectl create secret generic db-secret --from-literal=username=admin
+
+# Create generic secret from file
+kubectl create secret generic mysecret --from-file=./secret.txt
+
+# Decode secret value
+kubectl get secret mysecret -o jsonpath='{.data.password}' | base64 --decode
+
+# Create docker registry secret
 kubectl create secret docker-registry regcred --docker-username=user
 
-# Security Context
+🔹 Service Accounts
+
+# Create ServiceAccount
+kubectl create serviceaccount mysa
+
+# Using SA in a Pod:
+kubectl run mypod --image=nginx --serviceaccount=mysa
+
+
+🔹 Security Context
+
+# Get yaml manifest
 kubectl run secure-pod --image=nginx --dry-run=client -o yaml > pod.yaml
+
+#Pod with specific user
+kubectl run secpod --image=nginx --overrides='{"spec":{"securityContext":{"runAsUser":1000}}}'
+
+🔹 Resource Quotas & LimitRanges
+
+# Create ResourceQuota
+kubectl create quota myquota --hard=cpu=2,memory=1Gi,pods=10
+
+# Create LimitRange
+kubectl create limitrange mylimits --default-cpu=200m --default-memory=512Mi --max-cpu=1 --max-memory=1Gi
+
 # Edit to add securityContext
 
 # RBAC
@@ -69,6 +109,17 @@ kubectl create rolebinding read-pods --role=pod-reader --user=jane
 # Resource management
 kubectl set resources deployment nginx --limits=cpu=200m,memory=512Mi
 ```
+
+🎯 Exam Strategy
+Memorize key flags: --from-literal, --from-file, --serviceaccount, --hard, --default-cpu, --default-memory.
+
+Practice with `kubectl create` and `kubectl run`, as these are the ones that appear most frequently in practical scenarios.
+
+Use `kubectl explain <resource>` to remember YAML fields if you need to convert imperatives into manifests.
+
+Think about speed: imperatives are your shortcut to avoid wasting time writing long YAML statements.
+
+✅ In summary: the most important imperatives are kubectl create configmap, kubectl create secret, kubectl create serviceaccount, kubectl create quota, kubectl create limitrange, along with kubectl run for Pods with quick configurations.
 
 ## 🎯 Mock Scenarios
 

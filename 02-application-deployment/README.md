@@ -34,24 +34,73 @@
 ## ⚡ Quick Drills
 
 ```bash
-# Create deployment
-kubectl create deployment nginx --image=nginx:1.20
+🔹 Pods
 
-# Scale deployment
-kubectl scale deployment nginx --replicas=5
+# Create a simple Pod
+kubectl run mypod --image=nginx
 
-# Update image
-kubectl set image deployment/nginx nginx=nginx:1.21
+# Create Pod with exposed port
+kubectl run mypod --image=nginx --port=80
 
-# Check rollout status
-kubectl rollout status deployment/nginx
+# Create a Pod with environment variables:
+kubectl run mypod --image=nginx --env="ENV=prod"
 
-# Rollback deployment
-kubectl rollout undo deployment/nginx
 
-# View rollout history
-kubectl rollout history deployment/nginx
+🔹 Deployments
+#Create Deployment:
+kubectl create deployment myapp --image=nginx
+
+# Create Deployment with réplicas
+kubectl create deployment myapp --image=nginx --replicas=3
+
+
+#Scale Deployment:
+kubectl scale deployment myapp --replicas=5
+
+# Update image in Deployment
+kubectl set image deployment/myapp nginx=nginx:1.19
+
+# View rollout status
+kubectl rollout status deployment myapp
+
+# Deployment history
+kubectl rollout history deployment myapp
+
+# Revert to a previous version
+kubectl rollout undo deployment myapp
+
+🔹 ReplicaSets
+#They are usually created through Deployments, but you can list them
+kubectl get rs
+
+🔹 Jobs y CronJobs
+
+# Create Job
+kubectl create job myjob --image=busybox -- echo "Hello CKAD"
+
+# Create CronJob
+kubectl create cronjob mycron --image=busybox --schedule="*/1 * * * *" -- echo "Hello CKAD"
+
+🔹 Imperativos útiles de mantenimiento
+# Delete Pod/Deployment:
+kubectl delete pod mypod
+kubectl delete deployment myapp
+
+# Describe resources
+kubectl describe pod mypod
+kubectl describe deployment myapp
 ```
+
+Exam Strategy
+Memorize the fastest commands: kubectl run, kubectl create deployment, kubectl scale, kubectl set image, kubectl rollout.
+
+Practice Jobs and CronJobs, as they often appear in practical scenarios.
+
+Use kubectl explain <resource> if you need to remember YAML fields.
+
+Think speed: imperatives are your shortcut to avoid wasting time writing long manifests.
+
+✅ In summary: The most important imperatives are kubectl run, kubectl create deployment, kubectl scale, kubectl set image, kubectl rollout, along with kubectl create job and kubectl create cronjob.
 
 ## 🎯 Mock Scenarios
 

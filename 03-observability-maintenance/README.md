@@ -40,24 +40,88 @@
 ## ⚡ Quick Drills
 
 ```bash
-# View logs
-kubectl logs <pod-name>
+
+🔹 Logs
+
+# View logs of a pod
+kubectl logs mypod
+
+# View logs of a specific container
 kubectl logs <pod-name> -c <container-name>
+
+# Track logs in real time
+kubectl logs -f mypod
+
+# View logs
 kubectl logs <pod-name> --previous
+
+🔹 Exec (debugging within Pod)
+# Execute a command within a Pod:
+kubectl exec mypod -- ls /app
+
+# Enter interactive shell:
+kubectl exec -it <pod-name> -- /bin/sh
+kubectl exec -it  -- /bin/bash
 
 # Debug pods
 kubectl describe pod <pod-name>
 kubectl get events --sort-by=.metadata.creationTimestamp
-kubectl exec -it <pod-name> -- /bin/bash
 
-# Resource usage
-kubectl top pods
-kubectl top nodes
+🔹 Port-forwarding
+# Redirect local port to Pod
+kubectl port-forward pod/mypod 8080:80
+
+# Redirect to a Service
+kubectl port-forward svc/myservice 8080:80
+
+🔹 Probes (liveness/readiness)
+
+# Although they are usually defined in YAML, you can use imperative overrides:
+
+# Create a Pod with a liveness probe:
+
+kubectl run liveness-pod --image=nginx \
+  --overrides='{"spec":{"containers":[{"name":"nginx","image":"nginx","livenessProbe":{"httpGet":{"path":"/","port":80}}}]}}'
+
+🔹 Resource Management
+# Scaling a Deployment
+
+kubectl scale deployment myapp --replicas=5
+
+# View resource usage (if metrics-server is installed):
+
+kubectl top pod
+kubectl top node
 kubectl describe node <node-name>
 
-# Port forwarding for debugging
-kubectl port-forward <pod-name> 8080:80
+🔹 Maintenance
+
+# Eliminate problematic Pod:
+kubectl delete pod mypod
+
+
+# Restart Deployment
+kubectl rollout restart deployment myapp
+
+
+# View deployment history
+kubectl rollout history deployment myapp
+
 ```
+
+This part of the exam measures your ability to monitor, debug, and maintain applications in Kubernetes, and imperatives are your best ally for reacting quickly without writing YAML.
+
+Memorize the most commonly used imperatives: logs, exec, port-forward, scale, rollout, and restart.
+
+Practice quick debugging: enter a Pod (exec -it), review logs, and scale Deployments.
+
+Remember that probes and overrides can be defined imperatively, although the exam will often require YAML.
+
+Use kubectl explain if you need to remember configuration fields.
+
+✅ In summary: The most important imperatives are kubectl logs, kubectl exec, kubectl port-forward, kubectl scale, kubectl rollout restart, along with kubectl top for metrics and kubectl delete for quick maintenance.
+
+
 
 ## 🎯 Mock Scenarios
 
