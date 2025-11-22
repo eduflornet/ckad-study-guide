@@ -1,0 +1,250 @@
+{{- if .Values.userService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ecommerce.fullname" . }}-user-service
+  labels:
+    {{- include "ecommerce.microserviceLabels" (dict "Chart" .Chart "Release" .Release "Values" .Values "component" "user-service" "tier" "backend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount.userService }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ecommerce.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: user-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "ecommerce.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: user-service
+        version: {{ .Chart.AppVersion }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+    spec:
+      {{- include "ecommerce.podSecurityContext" . | nindent 6 }}
+      serviceAccountName: {{ include "ecommerce.serviceAccountName" . }}
+      containers:
+      - name: user-service
+        {{- include "ecommerce.securityContext" . | nindent 8 }}
+        image: "{{ .Values.userService.image.repository }}:{{ .Values.userService.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.userService.service.port }}
+          protocol: TCP
+        env:
+        - name: PORT
+          value: {{ .Values.userService.service.port | quote }}
+        - name: NODE_ENV
+          value: {{ .Values.environment }}
+        - name: SERVICE_NAME
+          value: "user-service"
+        envFrom:
+        - configMapRef:
+            name: {{ include "ecommerce.fullname" . }}-config
+        - secretRef:
+            name: {{ include "ecommerce.fullname" . }}-secrets
+        command:
+        - sh
+        - -c
+        - |
+          cat << 'USERAPP' > app.js
+          const express = require('express');
+          const crypto = require('crypto');
+          const app = express();
+          const port = process.env.PORT || 3001;
+          
+          app.use(express.json());
+          
+          // Mock user database
+          const users = new Map();
+          const sessions = new Map();
+          
+          // Service health and metrics
+          let serviceMetrics = {
+            totalRequests: 0,
+            successfulRequests: 0,
+            activeUsers: 0,
+            registrations: 0,
+            startTime: Date.now()
+          };
+          
+          // Middleware
+          app.use((req, res, next) => {
+            serviceMetrics.totalRequests++;
+            res.on('finish', () => {
+              if (res.statusCode < 400) {
+                serviceMetrics.successfulRequests++;
+              }
+            });
+            next();
+          });
+          
+          // Health check
+          app.get('/health', (req, res) => {
+            res.json({
+              status: 'healthy',
+              service: 'user-service',
+              version: process.env.npm_package_version || '1.0.0',
+              timestamp: new Date().toISOString(),
+              uptime: Date.now() - serviceMetrics.startTime,
+              environment: process.env.NODE_ENV
+            });
+          });
+          
+          // Service info
+          app.get('/', (req, res) => {
+            res.json({
+              service: 'User Service',
+              version: '2.1.0',
+              features: ['authentication', 'user_management', 'jwt_tokens', 'session_management'],
+              endpoints: ['/register', '/login', '/profile', '/logout'],
+              metrics: serviceMetrics
+            });
+          });
+          
+          // User registration
+          app.post('/register', (req, res) => {
+            const { username, email, password } = req.body;
+            
+            if (!username || !email || !password) {
+              return res.status(400).json({ error: 'Missing required fields' });
+            }
+            
+            if (users.has(email)) {
+              return res.status(409).json({ error: 'User already exists' });
+            }
+            
+            const userId = crypto.randomUUID();
+            const hashedPassword = crypto.pbkdf2Sync(password, 'salt', 10000, 64, 'sha512').toString('hex');
+            
+            users.set(email, {
+              id: userId,
+              username,
+              email,
+              password: hashedPassword,
+              createdAt: new Date().toISOString(),
+              isActive: true
+            });
+            
+            serviceMetrics.registrations++;
+            
+            res.status(201).json({
+              message: 'User created successfully',
+              userId,
+              username,
+              email
+            });
+          });
+          
+          // User login
+          app.post('/login', (req, res) => {
+            const { email, password } = req.body;
+            
+            if (!email || !password) {
+              return res.status(400).json({ error: 'Email and password required' });
+            }
+            
+            const user = users.get(email);
+            if (!user) {
+              return res.status(401).json({ error: 'Invalid credentials' });
+            }
+            
+            const hashedPassword = crypto.pbkdf2Sync(password, 'salt', 10000, 64, 'sha512').toString('hex');
+            if (user.password !== hashedPassword) {
+              return res.status(401).json({ error: 'Invalid credentials' });
+            }
+            
+            const sessionId = crypto.randomUUID();
+            const expiresAt = Date.now() + (parseInt(process.env.SESSION_TIMEOUT) * 1000);
+            
+            sessions.set(sessionId, {
+              userId: user.id,
+              email: user.email,
+              expiresAt
+            });
+            
+            serviceMetrics.activeUsers++;
+            
+            res.json({
+              message: 'Login successful',
+              sessionId,
+              user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+              },
+              expiresAt: new Date(expiresAt).toISOString()
+            });
+          });
+          
+          // Get user profile
+          app.get('/profile/:userId', (req, res) => {
+            const userId = req.params.userId;
+            const user = Array.from(users.values()).find(u => u.id === userId);
+            
+            if (!user) {
+              return res.status(404).json({ error: 'User not found' });
+            }
+            
+            res.json({
+              id: user.id,
+              username: user.username,
+              email: user.email,
+              createdAt: user.createdAt,
+              isActive: user.isActive
+            });
+          });
+          
+          // Metrics endpoint
+          app.get('/metrics', (req, res) => {
+            res.json({
+              ...serviceMetrics,
+              activeUsers: sessions.size,
+              timestamp: new Date().toISOString()
+            });
+          });
+          
+          app.listen(port, () => {
+            console.log(\`User Service listening on port \${port}\`);
+          });
+          USERAPP
+          
+          npm init -y
+          npm install express
+          node app.js
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.userService.resources | nindent 10 }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,182 @@
+{{- if .Values.productService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ecommerce.fullname" . }}-product-service
+  labels:
+    {{- include "ecommerce.microserviceLabels" (dict "Chart" .Chart "Release" .Release "Values" .Values "component" "product-service") | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount.productService }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ecommerce.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: product-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "ecommerce.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: product-service
+        version: {{ .Chart.AppVersion }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      {{- include "ecommerce.podSecurityContext" . | nindent 6 }}
+      containers:
+      - name: product-service
+        {{- include "ecommerce.securityContext" . | nindent 8 }}
+        image: "{{ .Values.productService.image.repository }}:{{ .Values.productService.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.productService.service.port }}
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: {{ include "ecommerce.fullname" . }}-config
+        env:
+        - name: PORT
+          value: {{ .Values.productService.service.port | quote }}
+        - name: SERVICE_NAME
+          value: "product-service"
+        command:
+        - sh
+        - -c
+        - |
+          cat << 'PRODUCTAPP' > app.js
+          const express = require('express');
+          const app = express();
+          const port = process.env.PORT || 3002;
+          
+          app.use(express.json());
+          
+          // Mock product database
+          const products = new Map([
+            ['1', { id: '1', name: 'Laptop Pro', price: 1299.99, category: 'Electronics', stock: 50 }],
+            ['2', { id: '2', name: 'Coffee Maker', price: 89.99, category: 'Appliances', stock: 25 }],
+            ['3', { id: '3', name: 'Book: JavaScript Guide', price: 29.99, category: 'Books', stock: 100 }],
+            ['4', { id: '4', name: 'Wireless Headphones', price: 199.99, category: 'Electronics', stock: 30 }],
+            ['5', { id: '5', name: 'Running Shoes', price: 129.99, category: 'Sports', stock: 75 }]
+          ]);
+          
+          let serviceMetrics = {
+            totalRequests: 0,
+            productViews: 0,
+            searches: 0,
+            inventoryChecks: 0,
+            startTime: Date.now()
+          };
+          
+          app.use((req, res, next) => {
+            serviceMetrics.totalRequests++;
+            next();
+          });
+          
+          app.get('/health', (req, res) => {
+            res.json({
+              status: 'healthy',
+              service: 'product-service',
+              version: '2.1.0',
+              timestamp: new Date().toISOString(),
+              productCount: products.size
+            });
+          });
+          
+          app.get('/', (req, res) => {
+            res.json({
+              service: 'Product Service',
+              version: '2.1.0',
+              features: ['product_catalog', 'inventory_management', 'search', 'categories'],
+              productCount: products.size,
+              metrics: serviceMetrics
+            });
+          });
+          
+          // Get all products
+          app.get('/products', (req, res) => {
+            serviceMetrics.productViews += products.size;
+            res.json(Array.from(products.values()));
+          });
+          
+          // Get product by ID
+          app.get('/products/:id', (req, res) => {
+            const product = products.get(req.params.id);
+            if (!product) {
+              return res.status(404).json({ error: 'Product not found' });
+            }
+            serviceMetrics.productViews++;
+            res.json(product);
+          });
+          
+          // Search products
+          app.get('/search', (req, res) => {
+            const { q, category } = req.query;
+            serviceMetrics.searches++;
+            
+            let results = Array.from(products.values());
+            
+            if (q) {
+              results = results.filter(p => 
+                p.name.toLowerCase().includes(q.toLowerCase())
+              );
+            }
+            
+            if (category) {
+              results = results.filter(p => 
+                p.category.toLowerCase() === category.toLowerCase()
+              );
+            }
+            
+            res.json(results);
+          });
+          
+          // Check inventory
+          app.get('/inventory/:id', (req, res) => {
+            const product = products.get(req.params.id);
+            if (!product) {
+              return res.status(404).json({ error: 'Product not found' });
+            }
+            
+            serviceMetrics.inventoryChecks++;
+            res.json({
+              productId: product.id,
+              name: product.name,
+              stock: product.stock,
+              available: product.stock > 0
+            });
+          });
+          
+          app.get('/metrics', (req, res) => {
+            res.json(serviceMetrics);
+          });
+          
+          app.listen(port, () => {
+            console.log(\`Product Service listening on port \${port}\`);
+          });
+          PRODUCTAPP
+          
+          npm init -y
+          npm install express
+          node app.js
+        resources:
+          {{- toYaml .Values.productService.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+{{- end }}
