@@ -1,0 +1,40 @@
+{{- if or .Values.userService.enabled .Values.productService.enabled .Values.orderService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ecommerce.fullname" . }}-config
+  labels:
+    {{- include "ecommerce.labels" . | nindent 4 }}
+data:
+  # Database configuration
+  DATABASE_URL: {{ include "ecommerce.databaseUrl" . | quote }}
+  REDIS_URL: {{ include "ecommerce.redisUrl" . | quote }}
+  RABBITMQ_URL: {{ include "ecommerce.rabbitmqUrl" . | quote }}
+  
+  # Application configuration
+  ENVIRONMENT: {{ .Values.environment | quote }}
+  REGION: {{ .Values.region | quote }}
+  
+  # Service discovery
+  USER_SERVICE_URL: "http://{{ include "ecommerce.fullname" . }}-user-service:{{ .Values.userService.service.port }}"
+  PRODUCT_SERVICE_URL: "http://{{ include "ecommerce.fullname" . }}-product-service:{{ .Values.productService.service.port }}"
+  ORDER_SERVICE_URL: "http://{{ include "ecommerce.fullname" . }}-order-service:{{ .Values.orderService.service.port }}"
+  
+  # User Service specific
+  {{- if .Values.userService.enabled }}
+  SESSION_TIMEOUT: {{ .Values.userService.env.SESSION_TIMEOUT | quote }}
+  PASSWORD_SALT_ROUNDS: {{ .Values.userService.env.PASSWORD_SALT_ROUNDS | quote }}
+  {{- end }}
+  
+  # Product Service specific
+  {{- if .Values.productService.enabled }}
+  CACHE_TTL: {{ .Values.productService.env.CACHE_TTL | quote }}
+  IMAGE_RESIZE_QUALITY: {{ .Values.productService.env.IMAGE_RESIZE_QUALITY | quote }}
+  {{- end }}
+  
+  # Order Service specific
+  {{- if .Values.orderService.enabled }}
+  ORDER_TIMEOUT: {{ .Values.orderService.env.ORDER_TIMEOUT | quote }}
+  INVENTORY_CHECK_ENABLED: {{ .Values.orderService.env.INVENTORY_CHECK_ENABLED | quote }}
+  {{- end }}
+{{- end }}

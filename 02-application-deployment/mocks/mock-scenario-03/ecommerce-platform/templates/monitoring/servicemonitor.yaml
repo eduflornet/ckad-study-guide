@@ -1,0 +1,36 @@
+{{- if and .Values.monitoring.prometheus.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "ecommerce.fullname" . }}-services
+  labels:
+    {{- include "ecommerce.labels" . | nindent 4 }}
+    app.kubernetes.io/component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ecommerce.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  endpoints:
+  {{- if .Values.userService.enabled }}
+  - port: http
+    path: /metrics
+    targetPort: {{ .Values.userService.service.port }}
+    interval: 30s
+    scrapeTimeout: 10s
+  {{- end }}
+  {{- if .Values.productService.enabled }}
+  - port: http
+    path: /metrics
+    targetPort: {{ .Values.productService.service.port }}
+    interval: 30s
+    scrapeTimeout: 10s
+  {{- end }}
+  {{- if .Values.orderService.enabled }}
+  - port: http
+    path: /metrics
+    targetPort: {{ .Values.orderService.service.port }}
+    interval: 30s
+    scrapeTimeout: 10s
+  {{- end }}
+{{- end }}

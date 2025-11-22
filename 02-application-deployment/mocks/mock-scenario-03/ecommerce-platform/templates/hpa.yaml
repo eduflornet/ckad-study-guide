@@ -1,0 +1,56 @@
+{{- if .Values.autoscaling.enabled }}
+{{- $services := list "userService" "productService" "orderService" }}
+{{- range $service := $services }}
+{{- $serviceConfig := index $.Values $service }}
+{{- if $serviceConfig.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "ecommerce.fullname" $ }}-{{ $service | kebabcase }}
+  labels:
+    {{- include "ecommerce.microserviceLabels" (dict "Chart" $.Chart "Release" $.Release "Values" $.Values "component" ($service | kebabcase)) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "ecommerce.fullname" $ }}-{{ $service | kebabcase }}
+  minReplicas: {{ $.Values.autoscaling.minReplicas }}
+  maxReplicas: {{ $.Values.autoscaling.maxReplicas }}
+  metrics:
+  {{- if $.Values.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ $.Values.autoscaling.targetCPUUtilizationPercentage }}
+  {{- end }}
+  {{- if $.Values.autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ $.Values.autoscaling.targetMemoryUtilizationPercentage }}
+  {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max
+{{- end }}
+{{- end }}
+{{- end }}

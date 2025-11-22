@@ -1,0 +1,49 @@
+apiVersion: v2
+name: ecommerce-platform
+description: Complete e-commerce microservices platform
+type: application
+version: 0.2.0
+appVersion: "2.1.0"
+keywords:
+  - ecommerce
+  - microservices
+  - kubernetes
+  - helm
+home: https://ecommerce-platform.example.com
+sources:
+  - https://github.com/company/ecommerce-platform
+maintainers:
+  - name: DevOps Team
+    email: devops@company.com
+
+dependencies:
+  - name: postgresql
+    version: "12.1.9"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+    tags:
+      - database
+  - name: redis
+    version: "17.3.7"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+    tags:
+      - cache
+  - name: rabbitmq
+    version: "11.1.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: rabbitmq.enabled
+    tags:
+      - messaging
+  - name: prometheus
+    version: "15.16.1"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: monitoring.prometheus.enabled
+    tags:
+      - monitoring
+  - name: grafana
+    version: "6.44.11"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: monitoring.grafana.enabled
+    tags:
+      - monitoring

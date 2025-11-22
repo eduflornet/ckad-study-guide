@@ -1,0 +1,80 @@
+environment: production
+region: us-west-2
+
+# Service Account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Scale for production
+replicaCount:
+  frontend: 3
+  apiGateway: 2
+  userService: 3
+  productService: 4
+  orderService: 3
+
+# Database configuration for production
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "prod-secure-password"
+    password: "prod-ecommerce-password"
+  primary:
+    persistence:
+      size: 100Gi
+  readReplicas:
+    replicaCount: 2
+
+redis:
+  enabled: true
+  auth:
+    password: "prod-redis-password"
+  master:
+    persistence:
+      size: 20Gi
+  replica:
+    replicaCount: 3
+
+rabbitmq:
+  enabled: true
+  auth:
+    username: "ecommerce"
+    password: "prod-rabbitmq-password"
+  persistence:
+    enabled: true
+    size: 50Gi
+  replicaCount: 3
+  clustering:
+    enabled: true
+  metrics:
+    enabled: false
+
+# Enable monitoring
+monitoring:
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+
+# Enable security features
+security:
+  networkPolicies:
+    enabled: true
+
+# Enable autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+
+# Frontend ingress
+frontend:
+  ingress:
+    enabled: true
+    hosts:
+    - host: ecommerce-prod.local
+      paths:
+      - path: /
+        pathType: Prefix

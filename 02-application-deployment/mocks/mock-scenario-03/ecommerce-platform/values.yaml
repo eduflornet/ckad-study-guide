@@ -1,0 +1,235 @@
+# Global configuration
+global:
+  imageRegistry: "docker.io"
+  imagePullSecrets: []
+  storageClass: "standard"
+  
+# Environment configuration
+environment: production
+region: us-west-2
+
+# Service Account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Application configuration
+replicaCount:
+  frontend: 3
+  apiGateway: 2
+  userService: 3
+  productService: 4
+  orderService: 3
+
+image:
+  registry: docker.io
+  pullPolicy: Always
+  tag: "latest"
+
+# Service-specific configurations
+frontend:
+  enabled: true
+  image:
+    repository: nginx
+    tag: "1.21-alpine"
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: ecommerce.local
+        paths:
+          - path: /
+            pathType: Prefix
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+apiGateway:
+  enabled: true
+  image:
+    repository: nginx
+    tag: "1.21-alpine"
+  service:
+    type: ClusterIP
+    port: 8080
+  config:
+    rateLimit: "100r/m"
+    maxBodySize: "10m"
+    timeout: "30s"
+  resources:
+    limits:
+      cpu: 300m
+      memory: 512Mi
+    requests:
+      cpu: 150m
+      memory: 256Mi
+
+userService:
+  enabled: true
+  image:
+    repository: node
+    tag: "18-alpine"
+  service:
+    type: ClusterIP
+    port: 3001
+  env:
+    JWT_SECRET: ""
+    SESSION_TIMEOUT: "3600"
+    PASSWORD_SALT_ROUNDS: "12"
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+productService:
+  enabled: true
+  image:
+    repository: node
+    tag: "18-alpine"
+  service:
+    type: ClusterIP
+    port: 3002
+  env:
+    CACHE_TTL: "300"
+    ELASTICSEARCH_URL: ""
+    IMAGE_RESIZE_QUALITY: "85"
+  resources:
+    limits:
+      cpu: 800m
+      memory: 1.5Gi
+    requests:
+      cpu: 400m
+      memory: 768Mi
+
+orderService:
+  enabled: true
+  image:
+    repository: node
+    tag: "18-alpine"
+  service:
+    type: ClusterIP
+    port: 3003
+  env:
+    PAYMENT_GATEWAY_URL: ""
+    ORDER_TIMEOUT: "1800"
+    INVENTORY_CHECK_ENABLED: "true"
+  resources:
+    limits:
+      cpu: 600m
+      memory: 1Gi
+    requests:
+      cpu: 300m
+      memory: 512Mi
+
+# Database configuration
+postgresql:
+  enabled: true
+  auth:
+    enablePostgresUser: true
+    postgresPassword: "securepassword"
+    username: "ecommerce"
+    password: "ecommerce123"
+    database: "ecommerce"
+  primary:
+    persistence:
+      enabled: true
+      size: 50Gi
+  readReplicas:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 50Gi
+
+# Cache configuration
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "redis123"
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+  replica:
+    replicaCount: 2
+    persistence:
+      enabled: true
+      size: 10Gi
+
+# Message queue configuration
+rabbitmq:
+  enabled: true
+  auth:
+    username: "ecommerce"
+    password: "rabbitmq123"
+  persistence:
+    enabled: true
+    size: 20Gi
+  replicaCount: 3
+  clustering:
+    enabled: true
+  metrics:
+    enabled: false
+
+# Monitoring configuration
+monitoring:
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+    admin:
+      password: "grafana123"
+
+# Security configuration
+security:
+  networkPolicies:
+    enabled: true
+  podSecurityContext:
+    fsGroup: 1001
+    runAsNonRoot: true
+    runAsUser: 1001
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+    readOnlyRootFilesystem: true
+
+# Autoscaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Service mesh configuration (optional)
+serviceMesh:
+  enabled: false
+  istio:
+    enabled: false
+  linkerd:
+    enabled: false
+
+# Backup configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+  retention: "30d"
+  storage:
+    size: "100Gi"
+    storageClass: "gp2"
