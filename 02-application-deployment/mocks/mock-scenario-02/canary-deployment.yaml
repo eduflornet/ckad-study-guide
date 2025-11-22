@@ -1,0 +1,358 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-api-canary
+  namespace: canary-release
+  labels:
+    app: payment-api
+    version: canary
+    track: canary
+spec:
+  replicas: 1  # 10% of traffic initially
+  selector:
+    matchLabels:
+      app: payment-api
+      version: canary
+  template:
+    metadata:
+      labels:
+        app: payment-api
+        version: canary
+        track: canary
+    spec:
+      containers:
+      - name: payment-api
+        image: node:18-alpine
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: NODE_ENV
+          value: "production"
+        - name: API_VERSION
+          value: "canary-v2.0.0"
+        - name: DEPLOYMENT_TRACK
+          value: "canary"
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DATABASE_URL
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: REDIS_URL
+        - name: FRAUD_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: fraud_api_key
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: jwt_secret
+        command:
+        - sh
+        - -c
+        - |
+          cat << 'NODEAPP' > app.js
+          const express = require('express');
+          const crypto = require('crypto');
+          const app = express();
+          const port = process.env.PORT || 3000;
+          
+          app.use(express.json());
+          
+          // Enhanced metrics for canary
+          let metrics = {
+            totalTransactions: 0,
+            successfulTransactions: 0,
+            failedTransactions: 0,
+            fraudDetected: 0,
+            avgResponseTime: 0,
+            uptime: Date.now(),
+            mlModelAccuracy: 0.97,
+            falsePositiveRate: 0.01
+          };
+          
+          // Enhanced ML-based fraud detection (canary version)
+          function detectFraudML(transaction) {
+            // Advanced ML-based fraud detection
+            const features = {
+              amount: transaction.amount,
+              merchant: transaction.merchant,
+              time: new Date().getHours(),
+              dayOfWeek: new Date().getDay()
+            };
+            
+            const riskFactors = [];
+            let riskScore = 0;
+            
+            // Amount-based risk
+            if (transaction.amount > 10000) {
+              riskFactors.push('high_amount');
+              riskScore += 0.3;
+            } else if (transaction.amount > 5000) {
+              riskFactors.push('moderate_amount');
+              riskScore += 0.1;
+            }
+            
+            // Merchant-based risk
+            if (transaction.merchant === 'suspicious_merchant') {
+              riskFactors.push('suspicious_merchant');
+              riskScore += 0.4;
+            }
+            
+            // Time-based risk (late night transactions)
+            if (features.time < 6 || features.time > 22) {
+              riskFactors.push('unusual_time');
+              riskScore += 0.2;
+            }
+            
+            // Weekend transactions
+            if (features.dayOfWeek === 0 || features.dayOfWeek === 6) {
+              riskFactors.push('weekend_transaction');
+              riskScore += 0.1;
+            }
+            
+            // Enhanced ML model - 1.5% fraud rate but better accuracy
+            const mlPrediction = Math.random() < 0.015;
+            
+            // Combine rule-based and ML predictions
+            const isFraud = mlPrediction || riskScore > 0.6;
+            
+            return {
+              isFraud,
+              riskScore: Math.min(riskScore + (Math.random() * 0.2), 1.0),
+              riskFactors,
+              algorithm: 'ml_enhanced_v2',
+              confidence: 0.95 + (Math.random() * 0.05),
+              version: process.env.API_VERSION
+            };
+          }
+          
+          // Health check with enhanced metrics
+          app.get('/health', (req, res) => {
+            const health = {
+              status: 'healthy',
+              version: process.env.API_VERSION,
+              track: process.env.DEPLOYMENT_TRACK,
+              timestamp: new Date().toISOString(),
+              uptime: Date.now() - metrics.uptime,
+              metrics: {
+                totalTransactions: metrics.totalTransactions,
+                successRate: metrics.totalTransactions > 0 
+                  ? (metrics.successfulTransactions / metrics.totalTransactions * 100).toFixed(2) + '%'
+                  : '0%',
+                fraudDetectionRate: metrics.totalTransactions > 0
+                  ? (metrics.fraudDetected / metrics.totalTransactions * 100).toFixed(2) + '%'
+                  : '0%',
+                mlModelAccuracy: (metrics.mlModelAccuracy * 100).toFixed(1) + '%',
+                falsePositiveRate: (metrics.falsePositiveRate * 100).toFixed(2) + '%'
+              },
+              features: {
+                enhancedFraudDetection: true,
+                mlModel: true,
+                realTimeAnalytics: true
+              }
+            };
+            res.json(health);
+          });
+          
+          // Readiness check
+          app.get('/ready', (req, res) => {
+            res.json({
+              status: 'ready',
+              version: process.env.API_VERSION,
+              track: process.env.DEPLOYMENT_TRACK,
+              timestamp: new Date().toISOString(),
+              mlModelLoaded: true
+            });
+          });
+          
+          // Main API endpoint with enhanced features
+          app.get('/', (req, res) => {
+            res.json({
+              service: 'Payment API - Enhanced',
+              version: process.env.API_VERSION,
+              track: process.env.DEPLOYMENT_TRACK,
+              environment: process.env.NODE_ENV,
+              features: {
+                fraudDetection: 'ml_enhanced_v2',
+                encryption: 'AES256',
+                compliance: 'PCI_DSS',
+                monitoring: 'advanced',
+                realTimeAnalytics: true,
+                enhancedSecurity: true
+              },
+              improvements: {
+                fraudAccuracy: '+15%',
+                responseTime: '-20%',
+                falsePositives: '-50%'
+              },
+              timestamp: new Date().toISOString()
+            });
+          });
+          
+          // Enhanced payment processing endpoint
+          app.post('/api/payments', (req, res) => {
+            const startTime = Date.now();
+            metrics.totalTransactions++;
+            
+            try {
+              const transaction = req.body;
+              
+              // Enhanced validation
+              if (!transaction.amount || !transaction.merchant || !transaction.cardNumber) {
+                metrics.failedTransactions++;
+                return res.status(400).json({
+                  error: 'Invalid transaction data',
+                  version: process.env.API_VERSION,
+                  track: process.env.DEPLOYMENT_TRACK
+                });
+              }
+              
+              // Enhanced fraud detection
+              const fraudCheck = detectFraudML(transaction);
+              
+              if (fraudCheck.isFraud) {
+                metrics.fraudDetected++;
+                return res.status(403).json({
+                  error: 'Transaction blocked - fraud detected',
+                  riskScore: fraudCheck.riskScore,
+                  riskFactors: fraudCheck.riskFactors,
+                  confidence: fraudCheck.confidence,
+                  algorithm: fraudCheck.algorithm,
+                  version: process.env.API_VERSION,
+                  track: process.env.DEPLOYMENT_TRACK
+                });
+              }
+              
+              // Faster processing in canary (20% improvement)
+              const processingTime = Math.random() * 800 + 400; // 400-1200ms
+              
+              setTimeout(() => {
+                // 98.5% success rate (improved)
+                const isSuccess = Math.random() > 0.015;
+                
+                if (isSuccess) {
+                  metrics.successfulTransactions++;
+                  
+                  const responseTime = Date.now() - startTime;
+                  metrics.avgResponseTime = (metrics.avgResponseTime + responseTime) / 2;
+                  
+                  res.json({
+                    transactionId: crypto.randomUUID(),
+                    status: 'approved',
+                    amount: transaction.amount,
+                    merchant: transaction.merchant,
+                    processedAt: new Date().toISOString(),
+                    fraudCheck: {
+                      riskScore: fraudCheck.riskScore,
+                      algorithm: fraudCheck.algorithm,
+                      confidence: fraudCheck.confidence,
+                      enhancedSecurity: true
+                    },
+                    version: process.env.API_VERSION,
+                    track: process.env.DEPLOYMENT_TRACK,
+                    responseTime: responseTime + 'ms',
+                    features: ['enhanced_fraud_detection', 'faster_processing']
+                  });
+                } else {
+                  metrics.failedTransactions++;
+                  res.status(500).json({
+                    error: 'Payment processing failed',
+                    version: process.env.API_VERSION,
+                    track: process.env.DEPLOYMENT_TRACK
+                  });
+                }
+              }, processingTime);
+              
+            } catch (error) {
+              metrics.failedTransactions++;
+              res.status(500).json({
+                error: 'Internal server error',
+                version: process.env.API_VERSION,
+                track: process.env.DEPLOYMENT_TRACK
+              });
+            }
+          });
+          
+          // Enhanced metrics endpoint
+          app.get('/metrics', (req, res) => {
+            res.json({
+              ...metrics,
+              version: process.env.API_VERSION,
+              track: process.env.DEPLOYMENT_TRACK,
+              timestamp: new Date().toISOString(),
+              enhanced: true
+            });
+          });
+          
+          // New analytics endpoint
+          app.get('/api/analytics', (req, res) => {
+            res.json({
+              fraudPrevention: {
+                totalBlocked: metrics.fraudDetected,
+                accuracy: metrics.mlModelAccuracy,
+                falsePositiveRate: metrics.falsePositiveRate
+              },
+              performance: {
+                avgResponseTime: metrics.avgResponseTime + 'ms',
+                successRate: metrics.totalTransactions > 0 
+                  ? (metrics.successfulTransactions / metrics.totalTransactions * 100).toFixed(2) + '%'
+                  : '0%'
+              },
+              version: process.env.API_VERSION,
+              track: process.env.DEPLOYMENT_TRACK
+            });
+          });
+          
+          app.listen(port, () => {
+            console.log(`Payment API (canary) listening on port ${port}`);
+            console.log(`Version: ${process.env.API_VERSION}`);
+            console.log('Enhanced ML fraud detection enabled');
+          });
+          NODEAPP
+          
+          npm init -y
+          npm install express
+          node app.js
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-api-canary-service
+  namespace: canary-release
+  labels:
+    app: payment-api
+    version: canary
+spec:
+  selector:
+    app: payment-api
+    version: canary
+  ports:
+  - port: 80
+    targetPort: 3000

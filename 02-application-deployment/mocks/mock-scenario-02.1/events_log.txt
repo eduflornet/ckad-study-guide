@@ -1,0 +1,113 @@
+LAST SEEN   TYPE      REASON                         OBJECT                                       MESSAGE
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-rw865       Successfully assigned finance/payment-api-stable-846d79cb8-rw865 to minikube
+103m        Normal    ScalingReplicaSet              deployment/payment-api-stable                Scaled up replica set payment-api-stable-846d79cb8 from 0 to 8
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-7gl2r
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-8x9jz
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-k5tnm
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-xbzjr
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-rw865
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-dtm99
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-6t7bq
+103m        Normal    SuccessfulCreate               replicaset/payment-api-stable-846d79cb8      Created pod: payment-api-stable-846d79cb8-b4xt7
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-7gl2r       Successfully assigned finance/payment-api-stable-846d79cb8-7gl2r to minikube
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-6t7bq       Successfully assigned finance/payment-api-stable-846d79cb8-6t7bq to minikube
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-b4xt7       Successfully assigned finance/payment-api-stable-846d79cb8-b4xt7 to minikube
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-xbzjr       Successfully assigned finance/payment-api-stable-846d79cb8-xbzjr to minikube
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-dtm99       Successfully assigned finance/payment-api-stable-846d79cb8-dtm99 to minikube
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-k5tnm       Successfully assigned finance/payment-api-stable-846d79cb8-k5tnm to minikube
+103m        Normal    Scheduled                      pod/payment-api-stable-846d79cb8-8x9jz       Successfully assigned finance/payment-api-stable-846d79cb8-8x9jz to minikube
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-k5tnm       Pulling image "registry.example.com/payment-api:v1"
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-dtm99       Pulling image "registry.example.com/payment-api:v1"
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-7gl2r       Pulling image "registry.example.com/payment-api:v1"
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-6t7bq       Pulling image "registry.example.com/payment-api:v1"
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-8x9jz       Pulling image "registry.example.com/payment-api:v1"
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-xbzjr       Pulling image "registry.example.com/payment-api:v1"
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-b4xt7       Pulling image "registry.example.com/payment-api:v1"
+100m        Normal    Pulling                        pod/payment-api-stable-846d79cb8-rw865       Pulling image "registry.example.com/payment-api:v1"
+7m15s       Warning   Failed                         pod/payment-api-stable-846d79cb8-b4xt7       Error: ImagePullBackOff
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-k5tnm       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+2m10s       Normal    BackOff                        pod/payment-api-stable-846d79cb8-dtm99       Back-off pulling image "registry.example.com/payment-api:v1"
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-dtm99       Error: ErrImagePull
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-dtm99       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+2m12s       Normal    BackOff                        pod/payment-api-stable-846d79cb8-rw865       Back-off pulling image "registry.example.com/payment-api:v1"
+2m12s       Warning   Failed                         pod/payment-api-stable-846d79cb8-rw865       Error: ImagePullBackOff
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-rw865       Error: ErrImagePull
+7m15s       Normal    BackOff                        pod/payment-api-stable-846d79cb8-b4xt7       Back-off pulling image "registry.example.com/payment-api:v1"
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-b4xt7       Error: ErrImagePull
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-b4xt7       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+2m10s       Warning   Failed                         pod/payment-api-stable-846d79cb8-dtm99       Error: ImagePullBackOff
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-k5tnm       Error: ErrImagePull
+2m12s       Normal    BackOff                        pod/payment-api-stable-846d79cb8-k5tnm       Back-off pulling image "registry.example.com/payment-api:v1"
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-xbzjr       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+2m12s       Warning   Failed                         pod/payment-api-stable-846d79cb8-k5tnm       Error: ImagePullBackOff
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-6t7bq       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-6t7bq       Error: ErrImagePull
+2m6s        Normal    BackOff                        pod/payment-api-stable-846d79cb8-6t7bq       Back-off pulling image "registry.example.com/payment-api:v1"
+2m6s        Warning   Failed                         pod/payment-api-stable-846d79cb8-6t7bq       Error: ImagePullBackOff
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-xbzjr       Error: ErrImagePull
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-rw865       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-7gl2r       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-7gl2r       Error: ErrImagePull
+2m9s        Normal    BackOff                        pod/payment-api-stable-846d79cb8-8x9jz       Back-off pulling image "registry.example.com/payment-api:v1"
+7m5s        Warning   Failed                         pod/payment-api-stable-846d79cb8-7gl2r       Error: ImagePullBackOff
+7m5s        Normal    BackOff                        pod/payment-api-stable-846d79cb8-7gl2r       Back-off pulling image "registry.example.com/payment-api:v1"
+2m15s       Normal    BackOff                        pod/payment-api-stable-846d79cb8-xbzjr       Back-off pulling image "registry.example.com/payment-api:v1"
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-8x9jz       Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+100m        Warning   Failed                         pod/payment-api-stable-846d79cb8-8x9jz       Error: ErrImagePull
+2m15s       Warning   Failed                         pod/payment-api-stable-846d79cb8-xbzjr       Error: ImagePullBackOff
+2m9s        Warning   Failed                         pod/payment-api-stable-846d79cb8-8x9jz       Error: ImagePullBackOff
+95m         Warning   Failed                         pod/payment-api-canary-866676cd54-gcv7q      Error: ErrImagePull
+95m         Warning   Failed                         pod/payment-api-canary-866676cd54-gcv7q      Failed to pull image "registry.example.com/payment-api:v2": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+98m         Normal    Scheduled                      pod/payment-api-canary-866676cd54-gcv7q      Successfully assigned finance/payment-api-canary-866676cd54-gcv7q to minikube
+98m         Normal    ScalingReplicaSet              deployment/payment-api-canary                Scaled up replica set payment-api-canary-866676cd54 from 0 to 1
+98m         Normal    SuccessfulCreate               replicaset/payment-api-canary-866676cd54     Created pod: payment-api-canary-866676cd54-gcv7q
+95m         Normal    Pulling                        pod/payment-api-canary-866676cd54-gcv7q      Pulling image "registry.example.com/payment-api:v2"
+11m         Warning   Failed                         pod/payment-api-canary-866676cd54-gcv7q      Error: ImagePullBackOff
+11m         Normal    BackOff                        pod/payment-api-canary-866676cd54-gcv7q      Back-off pulling image "registry.example.com/payment-api:v2"
+12m         Warning   FailedToUpdateEndpointSlices   service/payment-api                          Error updating Endpoint Slices for Service finance/payment-api: failed to update payment-api-nbqkc EndpointSlice for Service finance/payment-api: Unauthorized
+12m         Warning   FailedToUpdateEndpoint         endpoints/payment-api                        Failed to update endpoint finance/payment-api: Unauthorized
+11m         Normal    Scheduled                      pod/tx-integrity-check-lpm2x                 Successfully assigned finance/tx-integrity-check-lpm2x to minikube
+11m         Normal    SuccessfulCreate               job/tx-integrity-check                       Created pod: tx-integrity-check-lpm2x
+8m27s       Normal    Pulling                        pod/tx-integrity-check-lpm2x                 Pulling image "registry.example.com/test-tools:latest"
+8m27s       Warning   Failed                         pod/tx-integrity-check-lpm2x                 Failed to pull image "registry.example.com/test-tools:latest": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+8m27s       Warning   Failed                         pod/tx-integrity-check-lpm2x                 Error: ErrImagePull
+89s         Warning   Failed                         pod/tx-integrity-check-lpm2x                 Error: ImagePullBackOff
+89s         Normal    BackOff                        pod/tx-integrity-check-lpm2x                 Back-off pulling image "registry.example.com/test-tools:latest"
+10m         Normal    ScalingReplicaSet              deployment/payment-api-canary                Scaled down replica set payment-api-canary-866676cd54 from 1 to 0
+10m         Warning   FailedDelete                   replicaset/payment-api-canary-866676cd54     Error deleting: Unauthorized
+10m         Normal    SuccessfulDelete               replicaset/payment-api-canary-866676cd54     Deleted pod: payment-api-canary-866676cd54-gcv7q
+4m58s       Normal    SuccessfulDelete               replicaset/payment-api-stable-846d79cb8      Deleted pod: payment-api-stable-846d79cb8-b4xt7
+4m58s       Normal    Scheduled                      pod/payment-api-stable-654f5cdd56-9fzqf      Successfully assigned finance/payment-api-stable-654f5cdd56-9fzqf to minikube
+4m58s       Normal    SuccessfulCreate               replicaset/payment-api-stable-654f5cdd56     Created pod: payment-api-stable-654f5cdd56-9fzqf
+4m58s       Normal    ScalingReplicaSet              deployment/payment-api-stable                Scaled up replica set payment-api-stable-654f5cdd56 from 2 to 4
+4m58s       Normal    ScalingReplicaSet              deployment/payment-api-stable                Scaled down replica set payment-api-stable-846d79cb8 from 8 to 6
+2m1s        Normal    Pulling                        pod/payment-api-stable-654f5cdd56-4m94p      Pulling image "registry.example.com/payment-api:v1"
+4m58s       Normal    Scheduled                      pod/payment-api-stable-654f5cdd56-4m94p      Successfully assigned finance/payment-api-stable-654f5cdd56-4m94p to minikube
+4m58s       Normal    Scheduled                      pod/payment-api-stable-654f5cdd56-8vsjt      Successfully assigned finance/payment-api-stable-654f5cdd56-8vsjt to minikube
+117s        Normal    Pulling                        pod/payment-api-stable-654f5cdd56-8vsjt      Pulling image "registry.example.com/payment-api:v1"
+4m58s       Normal    ScalingReplicaSet              deployment/payment-api-stable                Scaled up replica set payment-api-stable-654f5cdd56 from 0 to 2
+4m58s       Normal    Scheduled                      pod/payment-api-stable-654f5cdd56-blc4c      Successfully assigned finance/payment-api-stable-654f5cdd56-blc4c to minikube
+4m58s       Normal    SuccessfulCreate               replicaset/payment-api-stable-654f5cdd56     Created pod: payment-api-stable-654f5cdd56-8vsjt
+4m58s       Normal    SuccessfulCreate               replicaset/payment-api-stable-654f5cdd56     Created pod: payment-api-stable-654f5cdd56-blc4c
+2m10s       Normal    Pulling                        pod/payment-api-stable-654f5cdd56-blc4c      Pulling image "registry.example.com/payment-api:v1"
+2m4s        Normal    Pulling                        pod/payment-api-stable-654f5cdd56-9fzqf      Pulling image "registry.example.com/payment-api:v1"
+4m58s       Normal    SuccessfulDelete               replicaset/payment-api-stable-846d79cb8      Deleted pod: payment-api-stable-846d79cb8-7gl2r
+4m58s       Normal    SuccessfulCreate               replicaset/payment-api-stable-654f5cdd56     Created pod: payment-api-stable-654f5cdd56-4m94p
+2m4s        Warning   Failed                         pod/payment-api-stable-654f5cdd56-9fzqf      Error: ErrImagePull
+2m10s       Warning   Failed                         pod/payment-api-stable-654f5cdd56-blc4c      Error: ErrImagePull
+2m4s        Warning   Failed                         pod/payment-api-stable-654f5cdd56-9fzqf      Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+117s        Warning   Failed                         pod/payment-api-stable-654f5cdd56-8vsjt      Error: ErrImagePull
+117s        Warning   Failed                         pod/payment-api-stable-654f5cdd56-8vsjt      Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+2m1s        Warning   Failed                         pod/payment-api-stable-654f5cdd56-4m94p      Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+2m1s        Warning   Failed                         pod/payment-api-stable-654f5cdd56-4m94p      Error: ErrImagePull
+2m10s       Warning   Failed                         pod/payment-api-stable-654f5cdd56-blc4c      Failed to pull image "registry.example.com/payment-api:v1": Error response from daemon: Get "https://registry.example.com/v2/": dial tcp: lookup registry.example.com on 192.168.49.1:53: no such host
+8s          Normal    BackOff                        pod/payment-api-stable-654f5cdd56-9fzqf      Back-off pulling image "registry.example.com/payment-api:v1"
+63s         Warning   Failed                         pod/payment-api-stable-654f5cdd56-9fzqf      Error: ImagePullBackOff
+10s         Normal    BackOff                        pod/payment-api-stable-654f5cdd56-blc4c      Back-off pulling image "registry.example.com/payment-api:v1"
+63s         Warning   Failed                         pod/payment-api-stable-654f5cdd56-blc4c      Error: ImagePullBackOff
+59s         Warning   Failed                         pod/payment-api-stable-654f5cdd56-4m94p      Error: ImagePullBackOff
+55s         Warning   Failed                         pod/payment-api-stable-654f5cdd56-8vsjt      Error: ImagePullBackOff
+3s          Normal    BackOff                        pod/payment-api-stable-654f5cdd56-8vsjt      Back-off pulling image "registry.example.com/payment-api:v1"
+6s          Normal    BackOff                        pod/payment-api-stable-654f5cdd56-4m94p      Back-off pulling image "registry.example.com/payment-api:v1"
+55s         Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/payment-api-stable   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+40s         Warning   FailedGetResourceMetric        horizontalpodautoscaler/payment-api-stable   failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
