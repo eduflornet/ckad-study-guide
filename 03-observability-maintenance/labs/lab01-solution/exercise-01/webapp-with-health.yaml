@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp-liveness
+  labels:
+    app: webapp
+spec:
+  containers:
+  - name: webapp
+    image: node:18-alpine
+    ports:
+    - containerPort: 3000
+    command:
+    - sh
+    - -c
+    - |
+      cat << 'NODEAPP' > app.js
+      const express = require('express');
+      const app = express();
+      const port = 3000;
+      
+      let isHealthy = true;
+      let requestCount = 0;
+      
+      app.get('/', (req, res) => {
+        requestCount++;
+        res.json({
+          message: 'Hello from webapp!',
+          requests: requestCount,
+          healthy: isHealthy,
+          timestamp: new Date().toISOString()
+        });
+      });
+      
+      app.get('/health', (req, res) => {
+        requestCount++;
+        if (isHealthy) {
+          res.status(200).json({
+            status: 'healthy',
+            uptime: process.uptime(),
+            requests: requestCount
+          });
+        } else {
+          res.status(500).json({
+            status: 'unhealthy',
+            uptime: process.uptime(),
+            requests: requestCount
+          });
+        }
+      });
+      
+      app.post('/fail', (req, res) => {
+        isHealthy = false;
+        res.json({ message: 'Application marked as unhealthy' });
+      });
+      
+      app.post('/heal', (req, res) => {
+        isHealthy = true;
+        res.json({ message: 'Application marked as healthy' });
+      });
+      
+      app.listen(port, () => {
+        console.log(`App listening on port ${port}`);
+      });
+      NODEAPP
+      
+      npm init -y
+      npm install express
+      node app.js
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 3000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 3
+      failureThreshold: 3
+      successThreshold: 1

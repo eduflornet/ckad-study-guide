@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: exec-liveness
+  labels:
+    app: exec-probe
+spec:
+  containers:
+  - name: app
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      # Create a health file initially
+      touch /tmp/healthy
+      echo "Application started, health file created"
+      
+      # Simulate application work
+      while true; do
+        if [ -f /tmp/healthy ]; then
+          echo "Application running normally..."
+          sleep 30
+        else
+          echo "Application in unhealthy state..."
+          sleep 30
+        fi
+      done
+    livenessProbe:
+      exec:
+        command:
+        - test
+        - -f
+        - /tmp/healthy
+      initialDelaySeconds: 10
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 2
