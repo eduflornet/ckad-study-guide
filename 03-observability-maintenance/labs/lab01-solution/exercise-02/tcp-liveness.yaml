@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tcp-server-liveness
+  labels:
+    app: tcp-server
+spec:
+  containers:
+  - name: tcp-server
+    image: busybox:1.35
+    command:
+    - sh
+    - -c
+    - |
+      # Create a simple TCP server that can be controlled
+      echo "Starting TCP server on port 8080"
+      while true; do
+        if [ -f /tmp/stop ]; then
+          echo "Server stopped"
+          sleep 60  # Keep container alive but don't listen
+        else
+          echo "Server listening..." | nc -l -p 8080
+        fi
+      done
+    ports:
+    - containerPort: 8080
+    livenessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 2

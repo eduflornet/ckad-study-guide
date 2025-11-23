@@ -22,20 +22,20 @@
 
 ## 🛠️ Practice Labs
 
-### Lab 1: Health Probes
-- [Configure liveness probes](labs/lab01-liveness-probes.md)
-- [Set up readiness probes](labs/lab02-readiness-probes.md)
-- [Implement startup probes](labs/lab03-startup-probes.md)
+### Labs: Health Probes
+- [1. Configure liveness probes](labs/lab01-liveness-probes.md)
+- [2. Set up readiness probes](labs/lab02-readiness-probes.md)
+- [3. Implement startup probes](labs/lab03-startup-probes.md)
 
-### Lab 2: Monitoring
-- [Container log analysis](labs/lab04-log-analysis.md)
-- [Resource monitoring](labs/lab05-resource-monitoring.md)
-- [Application metrics](labs/lab06-metrics.md)
+### Labs: Monitoring
+- [4. Container log analysis](labs/lab04-log-analysis.md)
+- [5. Resource monitoring](labs/lab05-resource-monitoring.md)
+- [6. Application metrics](labs/lab06-metrics.md)
 
-### Lab 3: Troubleshooting
-- [Debug failing pods](labs/lab07-pod-debugging.md)
-- [Network troubleshooting](labs/lab08-network-debug.md)
-- [Performance issues](labs/lab09-performance-debug.md)
+### Labs: Troubleshooting
+- [7. Debug failing pods](labs/lab07-pod-debugging.md)
+- [8. Network troubleshooting](labs/lab08-network-debug.md)
+- [9. Performance issues](labs/lab09-performance-debug.md)
 
 ## ⚡ Quick Drills
 

@@ -37,7 +37,7 @@
 - [08. Init container setup](labs/lab08-init-containers.md)
 - [09. Shared volume communication](labs/lab09-shared-volumes.md)
 
-## ⚡ Quick Drills
+## ⚡ [Quick Drills (Anki Decks)](/01-application-design-build/anki-decks/)
 
 Practice these commands until you can execute them quickly:
 
