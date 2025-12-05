@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-con-config
+  name: pod-con-config
+spec:
+  containers:
+  - image: nginx
+    envFrom:
+    - configMapRef:
+        name: my-config
+    name: pod-con-config
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
