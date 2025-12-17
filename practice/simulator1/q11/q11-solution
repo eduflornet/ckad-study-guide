@@ -1,0 +1,15 @@
+
+sudo docker login
+sudo podman login docker.io
+
+sudo docker build -t docker.io/efloresminsait/sun-cipher:v1-docker .
+sudo docker push docker.io/efloresminsait/sun-cipher:v1-docker
+
+# Primero corre el contenedor con esa imagen y dale un nombre:
+sudo docker run -d --name sun-cipher efloresminsait/sun-cipher:v1-docker
+
+# Luego obtén los logs del contenedor:
+sudo docker logs sun-cipher > sun-cipher.log
+
+
+

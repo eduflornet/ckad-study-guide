@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-init-container
+  name: pod-init-container
+spec:
+  containers:
+  - image: busybox
+    name: pod-init-container
+  initContainers:
+  - name: init-myservice
+    image: busybox:1.28
+    command: ['sh', '-c', "until nslookup myservice.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for myservice; sleep 2; done"]
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}

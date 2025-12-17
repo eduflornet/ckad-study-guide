@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-security
+  name: pod-security
+spec:
+  containers:
+  - image: nginx
+    name: pod-security
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  securityContext:
+      runAsUser: 1001
+status: {}

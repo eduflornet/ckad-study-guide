@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-volumen
+  name: pod-volumen
+spec:
+  containers:
+  - image: busybox
+    name: pod-volumen
+    volumeMounts:
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}

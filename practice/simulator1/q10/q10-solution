@@ -1,0 +1,24 @@
+# 1 Crea el Pod project-plt-6cc-api con la imagen nginx:1.17.3-alpine y el label requerido
+kubectl run project-plt-6cc-api \
+--image=nginx:1.17.3-alpine \
+--labels="project=plt-6cc-api" \
+--restart=Never -n pluto
+
+# 2 Crea el Service ClusterIP project-plt-6cc-svc que expone el Pod en puerto 3333:80
+kubectl expose pod project-plt-6cc-api -n pluto \
+--name=project-plt-6cc-svc \
+--port=3333 \
+--target-port=80 \
+--protocol=TCP \
+--type=ClusterIP
+
+# 3 Lanza un Pod temporal de nginx:alpine para probar el Service y guarda la respuesta
+kubectl run tmp-client -n pluto \
+--rm -i --tty \
+--image=nginx:alpine \
+--restart=Never \
+-- curl project-plt-6cc-svc:3333 > service_test.html
+
+
+
+

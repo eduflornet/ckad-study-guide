@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: pod-env
+  name: pod-env
+spec:
+  containers:
+  - command:
+    - env
+    image: busybox
+    name: pod-env
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

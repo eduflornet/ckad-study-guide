@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    run: job-timeout-task
+  name: job-timeout-task
+spec:
+  activeDeadlineSeconds: 60
+  template:
+    spec:
+      containers:
+      - command:
+        - sleep
+        - "30"
+        image: busybox
+        name: job-timeout-task
+        resources: {}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+status: {}

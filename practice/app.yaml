@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: app
+  name: app
+spec:
+  initContainers:
+  - name: wait-db
+    image: busybox
+    command: ['sh', '-c', 'until nc -z db-service 5432; do sleep 2; done']
+  containers:
+  - image: nginx
+    name: app
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}

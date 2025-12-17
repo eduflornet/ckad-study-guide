@@ -1,0 +1,46 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  creationTimestamp: "2025-12-01T16:22:12Z"
+  generation: 1
+  labels:
+    batch.kubernetes.io/controller-uid: c1250ba0-0686-49ec-86cd-850c68efe392
+    batch.kubernetes.io/job-name: job-parallel
+    controller-uid: c1250ba0-0686-49ec-86cd-850c68efe392
+    job-name: job-parallel
+  name: job-parallel
+  namespace: default
+  resourceVersion: "183635"
+  uid: c1250ba0-0686-49ec-86cd-850c68efe392
+spec:
+  backoffLimit: 6
+  completionMode: NonIndexed
+  completions: 1
+  manualSelector: false
+  parallelism: 1
+  podReplacementPolicy: TerminatingOrFailed
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: c1250ba0-0686-49ec-86cd-850c68efe392
+  suspend: false
+  template:
+    metadata:
+      labels:
+        batch.kubernetes.io/controller-uid: c1250ba0-0686-49ec-86cd-850c68efe392
+        batch.kubernetes.io/job-name: job-parallel
+        controller-uid: c1250ba0-0686-49ec-86cd-850c68efe392
+        job-name: job-parallel
+    spec:
+      containers:
+      - image: busybox
+        imagePullPolicy: Always
+        name: job-parallel
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
