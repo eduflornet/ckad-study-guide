@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: holy-api
+  name: holy-api
+  namespace: pluto
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: holy-api
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: holy-api
+    spec:
+      containers:
+      - image: busybox:1.31.0
+        name: busybox
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+status: {}

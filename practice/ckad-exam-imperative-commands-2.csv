@@ -1,0 +1,7 @@
+"View all and current context","kubectl config -h","imperative,config,basic"
+"Kubectl autocomplete","alias k=kubectl && complete -o default -F __start_kubectl k","imperative,autocomplete,shell"
+""Get all contexts","kubectl config get-contexts","imperative,config,basic"
+"Set current context","kubectl config use-context <context-name>","imperative,config
+"Create a Pod with Resource Requests and Limits","k create ns limit && k -n limit run resource-checker --image=httpd:alpine -o yaml --dry-run=client > pod-resource-checker.yaml https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#how-pods-with-resource-requests-are-scheduled","imperative,pod,resources"
+"ConfigMap Access in Pods"  ,"kubectl create cm trauerweide --from-literal tree=trauerweide,"imperative,configmap,pod",basic"
+"Create a Deployment with a ReadinessProbe","kubectl create deployment my-deployment --image=my-image --dry-run=client -o yaml > deployment.yaml && kubectl apply -f deployment.yaml","imperative,config,namespace"
